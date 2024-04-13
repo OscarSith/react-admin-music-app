@@ -1,17 +1,21 @@
 import { useState } from 'react';
 import { Alert, Button, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { URL_SERVER } from '../constants';
-
-interface ResponseAuth {
-  access_token: string;
-  message: string;
-  error: string;
-}
+import { useAuth } from '../provider/AuthProvider';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { IUser } from '../interfaces/User';
 
 const Login = () => {
+  const { user, setLogin } = useAuth();
+
+  if (user !== null) {
+    return <Navigate to="/" />;
+  }
+
   const [validated, setValidated] = useState<boolean>(false);
   const [errorServer, setErrorServer] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const handleSubmit = (event: React.ChangeEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -38,14 +42,15 @@ const Login = () => {
         },
       })
         .then(async (res: Response) => {
-          const data: ResponseAuth = await res.json();
+          const data: IUser = await res.json();
           if (res.status >= 400) {
             throw new Error(data.message);
           }
           return data;
         })
-        .then((data: ResponseAuth) => {
-          console.log('OK', data.access_token);
+        .then((data) => {
+          setLogin(data);
+          navigate('/');
         })
         .catch((reason: Error) => {
           setErrorServer(reason.message);

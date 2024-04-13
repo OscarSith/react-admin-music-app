@@ -1,15 +1,21 @@
+import { Navigate, Outlet } from 'react-router-dom';
 import Footer from './Footer';
 import Header from './Header';
+import { useAuth } from '../provider/AuthProvider';
 
-type Props = {
-  children: React.ReactNode;
-};
+const MainLayout = () => {
+  const { user } = useAuth();
 
-const MainLayout = ({ children }: Props) => {
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
   return (
     <>
       <Header />
-      <main>{children}</main>
+      <main>
+        <Outlet />
+      </main>
       <Footer />
     </>
   );
