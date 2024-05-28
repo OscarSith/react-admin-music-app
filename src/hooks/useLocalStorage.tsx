@@ -1,13 +1,13 @@
 // En vez de any, debe ser la interface de lo que
 
 import { useState } from 'react';
-import { IUser } from '../interfaces/User';
+import { IAuth } from '../interfaces/Auth';
 
 // devuelve el servicio de crear autenticación
 export const useLocalStorage = (
   keyname: string,
-  defaultValue: IUser | null,
-): [IUser, React.Dispatch<any>] => {
+  defaultValue: IAuth | null,
+): [IAuth, React.Dispatch<any>] => {
   const [storeValue, setStoredValue] = useState(() => {
     try {
       const value = window.localStorage.getItem(keyname);
@@ -23,7 +23,7 @@ export const useLocalStorage = (
     }
   });
 
-  const setValue = (newValue: IUser): void => {
+  const setValue = (newValue: IAuth): void => {
     try {
       window.localStorage.setItem(keyname, JSON.stringify(newValue));
     } catch (err) {

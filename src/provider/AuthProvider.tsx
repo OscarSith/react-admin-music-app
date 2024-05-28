@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useNavigate } from 'react-router-dom';
-import { IUser } from '../interfaces/User';
+import { IAuth } from '../interfaces/Auth';
 import { Props } from '../interfaces/globals';
 
 interface IUserContext {
-  user: IUser;
-  setLogin: (data: IUser) => void;
+  user: IAuth;
+  setLogin: (data: IAuth) => void;
   logout: () => void;
 }
 
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }: Props) => {
    * the localStorage then, it redirect to home
    * @param data User data
    */
-  const setLogin = (data: IUser): void => {
+  const setLogin = (data: IAuth): void => {
     setUser(data);
     navigate('/', { replace: true });
   };

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Alert, Button, Col, Form, Row, Spinner } from 'react-bootstrap';
-import { URL_SERVER } from '../constants';
+import { URL_SERVER_API } from '../constants';
 import { useAuth } from '../provider/AuthProvider';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { IUser } from '../interfaces/User';
+import { IAuth } from '../interfaces/Auth';
 
 const Login = () => {
   const { user, setLogin } = useAuth();
@@ -34,7 +34,7 @@ const Login = () => {
       setIsLoading(true);
       if (errorServer !== '') setErrorServer('');
 
-      fetch(URL_SERVER + 'auth/login', {
+      fetch(URL_SERVER_API + 'auth/login', {
         method: 'POST',
         body: JSON.stringify(body),
         headers: {
@@ -42,7 +42,7 @@ const Login = () => {
         },
       })
         .then(async (res: Response) => {
-          const data: IUser = await res.json();
+          const data: IAuth = await res.json();
           if (res.status >= 400) {
             throw new Error(data.message);
           }
