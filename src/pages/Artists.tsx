@@ -13,6 +13,8 @@ import {
 import { IArtist } from '../interfaces/Artist';
 import { URL_SERVER_API, URL_SERVER_DOMAIN } from '../constants';
 import { useAuth } from '../provider/AuthProvider';
+import { fetchService } from '../utils/utils';
+import { ItemArtist } from './ItemArtist';
 
 const emptyArtist: IArtist = {
   avatar: '',
@@ -34,23 +36,10 @@ export const Artists: React.FC = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch(URL_SERVER_API + 'artists', {
-      headers: {
-        Authorization: 'Bearer ' + user.access_token,
-      },
-    })
-      .then((res: Response) => res.json())
-      .then((data: IArtist[]) => setArtists(data.reverse()));
+    fetchService(URL_SERVER_API + 'artists', user.access_token).then(
+      (data: IArtist[]) => setArtists(data.reverse()),
+    );
   }, []);
-
-  const formatCreateDate = (created_at: string): string => {
-    const date = new Date(created_at);
-    return new Intl.DateTimeFormat('es-PE', {
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-    }).format(date);
-  };
 
   const handleClose = () => {
     setIsEdit(false);
@@ -80,21 +69,7 @@ export const Artists: React.FC = () => {
       if (isEdit) {
         url = url + '/' + editArtist.id;
       }
-
-      fetch(url, {
-        headers: {
-          Authorization: 'Bearer ' + user.access_token,
-        },
-        body: data,
-        method: isEdit ? 'PUT' : 'POST',
-      })
-        .then((res: Response) => {
-          if (res.ok) {
-            return res.json();
-          }
-
-          throw new Error('Ocurrió un error inesperado');
-        })
+      fetchService(url, user.access_token, isEdit ? 'PUT' : 'POST', data)
         .then((newArtist: IArtist) => {
           if (isEdit) {
             for (let i = 0; i < artists.length; i++) {
@@ -127,19 +102,15 @@ export const Artists: React.FC = () => {
 
   const handlerDelete = (artist: IArtist): void => {
     if (confirm('Va eliminar a este artista: ' + artist.name)) {
-      fetch(URL_SERVER_API + 'artists/' + artist.id, {
-        method: 'DELETE',
-        headers: {
-          Authorization: 'Bearer ' + user.access_token,
-        },
-      })
-        .then((res: Response) => res.json())
-        .then((data: any) => {
-          console.log(data);
-          setArtists((prevArtists) =>
-            prevArtists.filter((a) => a.id !== artist.id),
-          );
-        });
+      fetchService(
+        URL_SERVER_API + 'artists/' + artist.id,
+        user.access_token,
+        'DELETE',
+      ).then(() => {
+        setArtists((prevArtists) =>
+          prevArtists.filter((a) => a.id !== artist.id),
+        );
+      });
     }
   };
 
@@ -190,41 +161,12 @@ export const Artists: React.FC = () => {
         </thead>
         <tbody>
           {artists.map((artist) => (
-            <tr key={artist.id}>
-              <td>
-                {artist.name} {artist.lastname}
-              </td>
-              <td>
-                <Image
-                  src={URL_SERVER_DOMAIN + artist.avatar}
-                  alt={'Avatar ' + artist.name}
-                  thumbnail={true}
-                  rounded
-                />
-              </td>
-              <td>{artist.bio}</td>
-              <td>
-                <small>{formatCreateDate(artist.created_at)}</small>
-              </td>
-              <td>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="success"
-                  onClick={() => handleEdit(artist)}
-                >
-                  Edit
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="danger"
-                  onClick={() => handlerDelete(artist)}
-                >
-                  Del
-                </Button>
-              </td>
-            </tr>
+            <ItemArtist
+              key={artist.id}
+              artist={artist}
+              handleDelete={handlerDelete}
+              handleOpenEdit={handleEdit}
+            />
           ))}
         </tbody>
       </Table>
