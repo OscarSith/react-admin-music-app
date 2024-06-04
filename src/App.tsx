@@ -6,6 +6,7 @@ import { ErrorPage } from './pages/Error404';
 import MainLayout from './layoutComponents/MainLayout';
 import { Artists } from './pages/Artists';
 import { AuthProvider } from './provider/AuthProvider';
+import { Album } from './pages/Album';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<MainLayout />} errorElement={<ErrorPage />}>
             <Route index={true} element={<Home />} />
             <Route path="artists" element={<Artists />} />
+            <Route path="album" element={<Album />} />
           </Route>
           <Route path="/login" element={<Login />} />
         </Routes>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import {
   Button,
   FloatingLabel,
@@ -52,7 +52,7 @@ export const Artists: React.FC = () => {
 
   const handleShow = () => setShowModal(true);
 
-  const handleSubmit = (event: React.ChangeEvent<HTMLFormElement>): void => {
+  const handleSubmit = (event: ChangeEvent<HTMLFormElement>): void => {
     event.preventDefault();
     const form = event.target;
 
@@ -131,14 +131,14 @@ export const Artists: React.FC = () => {
     }
   };
 
-  const onChangeFileEvent = (event: any): void => {
+  const onChangeFileEvent = (event: ChangeEvent<HTMLInputElement>): void => {
     const fileReader = new FileReader();
     fileReader.onload = (e: any) => {
       const { result } = e.target;
       setImagePreview(result);
     };
 
-    fileReader.readAsDataURL(event.target.files[0]);
+    fileReader.readAsDataURL(event.target.files.item(0));
   };
 
   return (

@@ -5,4 +5,5 @@ export interface IArtist {
   avatar: string;
   bio: string;
   created_at: string;
+  fullname?: string;
 }

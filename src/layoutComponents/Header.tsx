@@ -19,6 +19,9 @@ const Header: React.FC = () => {
               <Nav.Link as={Link} to="artists">
                 Artistas
               </Nav.Link>
+              <Nav.Link as={Link} to="album">
+                Albunes
+              </Nav.Link>
               {user.access_token === '' ? (
                 <Nav.Link as={Link} to="/login">
                   Login
