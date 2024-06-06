@@ -3,7 +3,7 @@ import { Container } from 'react-bootstrap';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import { ErrorPage } from './pages/Error404';
-import MainLayout from './layoutComponents/MainLayout';
+import MainLayout from './components/MainLayout';
 import { Artists } from './pages/Artist/Artists';
 import { AuthProvider } from './provider/AuthProvider';
 import { Album } from './pages/Album/Album';

@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Button, Toast, ToastContainer } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { IArtist } from '../../interfaces/Artist';
 import { URL_SERVER_API } from '../../constants';
 import { useAuth } from '../../provider/AuthProvider';
@@ -17,6 +17,7 @@ import {
 } from '../../reducers/ArtistReducer';
 import { ArtistModal } from './ArtistModal';
 import { ArtistTable } from './ArtistTable';
+import { CustomToast } from '../../components/CustomToast';
 
 const emptyArtist: IArtist = {
   avatar: '',
@@ -36,11 +37,11 @@ export const Artists: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [validated, setValidated] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(false);
+  const [message, setMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
-    console.log('Artists');
     fetchService(URL_SERVER_API + 'artists', user.access_token).then(
       (data: IArtist[]) =>
         dispatch({
@@ -50,19 +51,20 @@ export const Artists: React.FC = () => {
     );
   }, []);
 
-  const handleClose = () => {
+  const handleCloseModal = () => {
     if (isEdit) setIsEdit(false);
     editArtistRef.current = emptyArtist;
     setShowModal(false);
     setValidated(false);
-    setError('');
+    setError(false);
   };
 
-  const handleShow = () => {
-    setError('');
+  const handleShowModal = () => {
+    setError(false);
     if (showToast) {
       setShowToast(false);
     }
+    setMessage('');
     setShowModal(true);
   };
 
@@ -92,16 +94,23 @@ export const Artists: React.FC = () => {
               artists: [newArtist],
               id: newArtist.id,
             });
+            handleShowToast(
+              `Artista "${newArtist.name}" actualizado exitosamente`,
+            );
           } else {
             dispatch({
               type: ArtistReducerActions.ADDED,
               artists: [newArtist],
             });
+            handleShowToast(
+              `Artista "${newArtist.name}" agregado exitosamente`,
+            );
           }
-          handleClose();
+          handleCloseModal();
         })
         .catch((e: Error) => {
-          setError(e.message);
+          setError(true);
+          setMessage(e.message);
         });
     }
   };
@@ -109,7 +118,7 @@ export const Artists: React.FC = () => {
   const handleEdit = useCallback(
     (artist: IArtist): void => {
       setIsEdit(true);
-      handleShow();
+      handleShowModal();
       editArtistRef.current = artist;
     },
     [artists],
@@ -125,21 +134,30 @@ export const Artists: React.FC = () => {
         )
           .then(() => {
             dispatch({ type: ArtistReducerActions.DELETED, id: artist.id });
+            handleShowToast(`Se eliminó el artista "${artist.name}"`);
           })
           .catch((reason: Error) => {
-            setShowToast(true);
-            setError(reason.message);
+            handleShowToast(reason.message, true);
           });
       }
     },
     [artists],
   );
 
+  const handleShowToast = (message: string, error: boolean = false) => {
+    if (error) {
+      setError(true);
+    }
+
+    setShowToast(true);
+    setMessage(message);
+  };
+
   return (
     <>
       <h2 className="text-center mb-3">Lista de Artistas</h2>
       <div className="mb-2">
-        <Button type="button" variant="primary" onClick={handleShow}>
+        <Button type="button" variant="primary" onClick={handleShowModal}>
           Nuevo
         </Button>
       </div>
@@ -152,28 +170,18 @@ export const Artists: React.FC = () => {
         referido={editArtistRef}
         isEdit={isEdit}
         handleSubmit={handleSubmit}
-        handleClose={handleClose}
-        error={error}
+        handleClose={handleCloseModal}
+        error={message}
         showModal={showModal}
         validated={validated}
       />
-      <ToastContainer
-        position="middle-center"
-        style={{ position: 'sticky', bottom: '10%' }}
-      >
-        <Toast
-          onClose={() => setShowToast(false)}
-          show={showToast}
-          delay={4000}
-          bg="danger"
-          autohide
-        >
-          <Toast.Header closeButton={false}>
-            <strong className="me-auto">Advertencia!</strong>
-          </Toast.Header>
-          <Toast.Body>{error}</Toast.Body>
-        </Toast>
-      </ToastContainer>
+      <CustomToast
+        title={error ? 'Advertencia!' : 'Aviso'}
+        message={message}
+        type={error ? 'danger' : 'success'}
+        showToast={showToast}
+        closeToast={() => setShowToast(false)}
+      />
     </>
   );
 };
