@@ -10,12 +10,13 @@ export const fetchService = async (
     },
     body: data,
     method,
-  }).then((res: Response) => {
+  }).then(async (res: Response) => {
     if (res.ok) {
       return res.json();
     }
 
-    throw new Error('Ocurrió un error inesperado');
+    const errorData = await res.json();
+    throw new Error(errorData.message);
   });
 };
 

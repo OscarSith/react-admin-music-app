@@ -1,8 +1,8 @@
 import React, { KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 import { Form, ListGroup } from 'react-bootstrap';
-import { IArtist } from '../interfaces/Artist';
-import { fetchService } from '../utils/utils';
-import { URL_SERVER_API } from '../constants';
+import { IArtist } from '../../interfaces/Artist';
+import { fetchService } from '../../utils/utils';
+import { URL_SERVER_API } from '../../constants';
 
 type AutocompleteProps = {
   token: string;

@@ -1,7 +1,7 @@
 import { Button, Image } from 'react-bootstrap';
-import { URL_SERVER_DOMAIN } from '../constants';
-import { IArtist } from '../interfaces/Artist';
-import { formatCreateDate } from '../utils/utils';
+import { URL_SERVER_DOMAIN } from '../../constants';
+import { IArtist } from '../../interfaces/Artist';
+import { formatCreateDate } from '../../utils/utils';
 
 type ItemArtistProps = {
   artist: IArtist;

@@ -4,9 +4,9 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import { ErrorPage } from './pages/Error404';
 import MainLayout from './layoutComponents/MainLayout';
-import { Artists } from './pages/Artists';
+import { Artists } from './pages/Artist/Artists';
 import { AuthProvider } from './provider/AuthProvider';
-import { Album } from './pages/Album';
+import { Album } from './pages/Album/Album';
 
 function App() {
   return (
