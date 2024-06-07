@@ -6,9 +6,15 @@ import React from 'react';
 
 type AlbumItemProps = {
   album: IAlbum;
+  showModal: () => void;
+  testGetAlbumSelected: (album: IAlbum, toDelete?: boolean) => void;
 };
 
-export const AlbumItem: React.FC<AlbumItemProps> = ({ album }) => {
+export const AlbumItem: React.FC<AlbumItemProps> = ({
+  album,
+  showModal,
+  testGetAlbumSelected,
+}) => {
   return (
     <Col>
       <Card className="mb-4">
@@ -19,9 +25,28 @@ export const AlbumItem: React.FC<AlbumItemProps> = ({ album }) => {
         />
         <CardBody>
           <Card.Title>{album.name}</Card.Title>
-          <Button size="sm" variant="success">
-            Edit
-          </Button>
+          <div className="d-flex justify-content-between">
+            <Button
+              size="sm"
+              variant="success"
+              onClick={() => {
+                testGetAlbumSelected(album);
+                showModal();
+              }}
+            >
+              Edit
+            </Button>
+            <Button
+              size="sm"
+              variant="danger"
+              onClick={() => {
+                testGetAlbumSelected(album, true);
+                showModal();
+              }}
+            >
+              Delete
+            </Button>
+          </div>
         </CardBody>
         <Card.Footer className="text-muted small">
           {formatCreateDate(album.created_at)}

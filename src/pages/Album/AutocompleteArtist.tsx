@@ -10,7 +10,6 @@ import { Form, ListGroup } from 'react-bootstrap';
 import { useDebounce } from '@uidotdev/usehooks';
 import { IArtist } from '../../interfaces/Artist';
 import { fetchService } from '../../utils/utils';
-import { URL_SERVER_API } from '../../constants';
 
 type AutocompleteProps = {
   token: string;
@@ -35,12 +34,11 @@ export const AutocompleteArtist: React.FC<AutocompleteProps> = ({
 
   useEffect(() => {
     if (searchDebounce && !avoidSearchWhenClickASuggestion.current) {
-      fetchService(
-        URL_SERVER_API + 'artists/search-by?name=' + searchDebounce,
-        token,
-      ).then((suggestions) => {
-        setSugestions(suggestions);
-      });
+      fetchService('artists/search-by?name=' + searchDebounce, token).then(
+        (suggestions) => {
+          setSugestions(suggestions);
+        },
+      );
     } else {
       setSugestions([]);
       avoidSearchWhenClickASuggestion.current = false;
@@ -76,20 +74,20 @@ export const AutocompleteArtist: React.FC<AutocompleteProps> = ({
 
   const handleChangeInputSearch = (event: ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
+    updateArtistId(0);
   };
 
   const handlerClickItem = (artistName: string, artistId: number) => {
     avoidSearchWhenClickASuggestion.current = true;
     setSearch(artistName);
-    closeSuggestions(artistId);
+    closeSuggestions();
+    if (artistId) updateArtistId(artistId);
   };
 
-  const closeSuggestions = (artistId: number = null): void => {
+  const closeSuggestions = (): void => {
     setSugestions([]);
     searchRef.current.focus();
     setActivar(0);
-
-    if (artistId) updateArtistId(artistId);
   };
 
   return (
