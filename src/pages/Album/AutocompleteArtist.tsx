@@ -1,5 +1,13 @@
-import React, { KeyboardEvent, MouseEvent, useRef, useState } from 'react';
+import React, {
+  ChangeEvent,
+  KeyboardEvent,
+  MouseEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Form, ListGroup } from 'react-bootstrap';
+import { useDebounce } from '@uidotdev/usehooks';
 import { IArtist } from '../../interfaces/Artist';
 import { fetchService } from '../../utils/utils';
 import { URL_SERVER_API } from '../../constants';
@@ -12,6 +20,7 @@ type AutocompleteProps = {
 const ARROW_UP = 'ArrowUp';
 const ARROW_DOWN = 'ArrowDown';
 const PREFIX_ID_ITEM = 'item';
+const DEBOUNCE_TIME = 300;
 
 export const AutocompleteArtist: React.FC<AutocompleteProps> = ({
   token,
@@ -20,12 +29,29 @@ export const AutocompleteArtist: React.FC<AutocompleteProps> = ({
   const searchRef = useRef<HTMLInputElement>(null);
   const [suggestions, setSugestions] = useState<IArtist[]>([]);
   const [activar, setActivar] = useState(0);
+  const [search, setSearch] = useState('');
+  const avoidSearchWhenClickASuggestion = useRef(false);
+  const searchDebounce = useDebounce(search, DEBOUNCE_TIME);
+
+  useEffect(() => {
+    if (searchDebounce && !avoidSearchWhenClickASuggestion.current) {
+      fetchService(
+        URL_SERVER_API + 'artists/search-by?name=' + searchDebounce,
+        token,
+      ).then((suggestions) => {
+        setSugestions(suggestions);
+      });
+    } else {
+      setSugestions([]);
+      avoidSearchWhenClickASuggestion.current = false;
+    }
+  }, [searchDebounce]);
 
   const handlerNavigate = (e: KeyboardEvent<HTMLDivElement>): void => {
     e.stopPropagation();
     if (e.key === ARROW_DOWN || e.key === ARROW_UP) e.preventDefault();
 
-    if (e.key === ARROW_DOWN && activar < 4) {
+    if (e.key === ARROW_DOWN && activar < suggestions.length) {
       setActivar((prev) => {
         const d = ++prev;
         const el = document.getElementById(PREFIX_ID_ITEM + d);
@@ -48,23 +74,13 @@ export const AutocompleteArtist: React.FC<AutocompleteProps> = ({
     }
   };
 
-  const handlerChangeInputSearch = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    if (e.target.value.length > 1) {
-      const suggestions = (await fetchService(
-        URL_SERVER_API + 'artists/search-by?name=' + e.target.value,
-        token,
-      )) as IArtist[];
-
-      setSugestions(suggestions);
-    } else {
-      setSugestions([]);
-    }
+  const handleChangeInputSearch = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value);
   };
 
   const handlerClickItem = (artistName: string, artistId: number) => {
-    searchRef.current.value = artistName;
+    avoidSearchWhenClickASuggestion.current = true;
+    setSearch(artistName);
     closeSuggestions(artistId);
   };
 
@@ -83,7 +99,8 @@ export const AutocompleteArtist: React.FC<AutocompleteProps> = ({
           type="search"
           placeholder="Escriba el artista"
           ref={searchRef}
-          onChange={handlerChangeInputSearch}
+          value={search}
+          onChange={handleChangeInputSearch}
         />
         {setSugestions.length > 0 && (
           <ListGroup>
