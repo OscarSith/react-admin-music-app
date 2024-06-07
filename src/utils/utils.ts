@@ -1,10 +1,12 @@
+import { URL_SERVER_API } from '../constants';
+
 export const fetchService = async (
   url: string,
   token: string,
   method: string = 'GET',
-  data?: any,
+  data?: FormData,
 ): Promise<any> => {
-  return fetch(url, {
+  return fetch(URL_SERVER_API + url, {
     headers: {
       Authorization: 'Bearer ' + token,
     },

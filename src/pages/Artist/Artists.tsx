@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import { Button } from 'react-bootstrap';
 import { IArtist } from '../../interfaces/Artist';
-import { URL_SERVER_API } from '../../constants';
 import { useAuth } from '../../provider/AuthProvider';
 import { fetchService } from '../../utils/utils';
 import {
@@ -42,12 +41,11 @@ export const Artists: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
-    fetchService(URL_SERVER_API + 'artists', user.access_token).then(
-      (data: IArtist[]) =>
-        dispatch({
-          type: ArtistReducerActions.SET,
-          artists: data.reverse(),
-        }),
+    fetchService('artists', user.access_token).then((data: IArtist[]) =>
+      dispatch({
+        type: ArtistReducerActions.SET,
+        artists: data.reverse(),
+      }),
     );
   }, []);
 
@@ -80,7 +78,7 @@ export const Artists: React.FC = () => {
       event.stopPropagation();
     } else {
       const data = new FormData(form);
-      let url = URL_SERVER_API + 'artists';
+      let url = 'artists';
 
       if (isEdit) {
         url = url + '/' + editArtistRef.current.id;
@@ -127,11 +125,7 @@ export const Artists: React.FC = () => {
   const handlerDelete = useCallback(
     (artist: IArtist): void => {
       if (confirm('Va eliminar a este artista: ' + artist.name)) {
-        fetchService(
-          URL_SERVER_API + 'artists/' + artist.id,
-          user.access_token,
-          'DELETE',
-        )
+        fetchService('artists/' + artist.id, user.access_token, 'DELETE')
           .then(() => {
             dispatch({ type: ArtistReducerActions.DELETED, id: artist.id });
             handleShowToast(`Se eliminó el artista "${artist.name}"`);
