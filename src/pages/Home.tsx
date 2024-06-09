@@ -1,24 +1,18 @@
-// import { useLoaderData } from 'react-router-dom';
+import { Suspense } from 'react';
+import { Table } from 'react-bootstrap';
+import { UserTable } from './UserTable';
+import ErrorBoundary from '../utils/ErrorBoundary';
 
-import { useEffect, useState } from 'react';
-import { useAuth } from '../provider/AuthProvider';
-import { URL_SERVER_API } from '../constants';
-import { IUser } from '../interfaces/User';
-import { Button, Table } from 'react-bootstrap';
-
-const Home: React.FC = () => {
-  const { user } = useAuth();
-  const [users, setUsers] = useState<IUser[]>([]);
-
-  useEffect(() => {
-    fetch(URL_SERVER_API + 'users', {
-      headers: {
-        Authorization: 'Bearer ' + user.access_token,
-      },
-    })
-      .then((res: Response) => res.json())
-      .then((users: IUser[]) => setUsers(users));
-  }, []);
+const Home = () => {
+  const loading = (message: string) => {
+    return (
+      <tr>
+        <td colSpan={5} className="text-center">
+          {message}
+        </td>
+      </tr>
+    );
+  };
 
   return (
     <>
@@ -34,19 +28,13 @@ const Home: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td>{user.id}</td>
-              <td>{user.name}</td>
-              <td>{user.lastname}</td>
-              <td>{user.email}</td>
-              <td>
-                <Button type="button" size="sm" variant="success">
-                  Edit
-                </Button>
-              </td>
-            </tr>
-          ))}
+          <ErrorBoundary
+            fallback={loading('NO se pudo cargar la lista de usuarios')}
+          >
+            <Suspense fallback={loading('Cargando datos...')}>
+              <UserTable />
+            </Suspense>
+          </ErrorBoundary>
         </tbody>
       </Table>
     </>

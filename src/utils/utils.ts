@@ -2,23 +2,18 @@ import { URL_SERVER_API } from '../constants';
 
 export const fetchService = async (
   url: string,
-  token: string,
+  // signal: AbortSignal,
   method: string = 'GET',
   data?: FormData,
 ): Promise<any> => {
+  const { access_token } = JSON.parse(localStorage.getItem('user'));
   return fetch(URL_SERVER_API + url, {
     headers: {
-      Authorization: 'Bearer ' + token,
+      Authorization: 'Bearer ' + access_token,
     },
     body: data,
     method,
-  }).then(async (res: Response) => {
-    if (res.ok) {
-      return res.json();
-    }
-
-    const errorData = await res.json();
-    throw new Error(errorData.message);
+    // signal,
   });
 };
 
