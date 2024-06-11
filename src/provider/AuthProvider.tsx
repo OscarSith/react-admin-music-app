@@ -2,7 +2,7 @@ import React, { createContext, useContext, useMemo } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useNavigate } from 'react-router-dom';
 import { IAuth } from '../interfaces/Auth';
-import { Props } from '../interfaces/globals';
+import { Props } from '../types';
 
 interface IUserContext {
   user: IAuth;

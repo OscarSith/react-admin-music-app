@@ -1,5 +1,4 @@
 import React, {
-  ChangeEvent,
   useCallback,
   useEffect,
   useReducer,
@@ -8,143 +7,78 @@ import React, {
 } from 'react';
 import { Button } from 'react-bootstrap';
 import { IArtist } from '../../interfaces/Artist';
-import { useAuth } from '../../provider/AuthProvider';
-import { fetchService } from '../../utils/utils';
 import {
   ArtistReducer,
   ArtistReducerActions,
 } from '../../reducers/ArtistReducer';
-import { ArtistModal } from './ArtistModal';
+import { ArtistModal, emptyArtist } from './ArtistModal';
 import { ArtistTable } from './ArtistTable';
 import { CustomToast } from '../../components/CustomToast';
-
-const emptyArtist: IArtist = {
-  avatar: '',
-  bio: '',
-  id: 0,
-  lastname: '',
-  name: '',
-  created_at: '',
-};
+import { useFetch } from '../../hooks/useFetch';
+import { IArtistsFetch } from '../../interfaces/globals';
 
 export const Artists: React.FC = () => {
-  const { user } = useAuth();
+  const { data, loading }: IArtistsFetch = useFetch('artists');
   const [artists, dispatch] = useReducer(ArtistReducer, []);
   const editArtistRef = useRef<IArtist>(emptyArtist);
 
   // States
-  const [showModal, setShowModal] = useState(false);
-  const [validated, setValidated] = useState<boolean>(false);
-  const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [error, setError] = useState(false);
   const [message, setMessage] = useState('');
+  const [error, setError] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const toDelete = useRef(false);
 
   useEffect(() => {
-    fetchService('artists', user.access_token).then((data: IArtist[]) =>
+    if (data) {
       dispatch({
         type: ArtistReducerActions.SET,
         artists: data.reverse(),
-      }),
-    );
-  }, []);
+      });
+    }
+  }, [data]);
 
   const handleCloseModal = () => {
-    if (isEdit) setIsEdit(false);
-    editArtistRef.current = emptyArtist;
     setShowModal(false);
-    setValidated(false);
-    setError(false);
+    toDelete.current = false;
   };
 
-  const handleShowModal = () => {
-    setError(false);
+  const handleShowModal = useCallback(() => {
     if (showToast) {
       setShowToast(false);
     }
+    setError(false);
     setMessage('');
     setShowModal(true);
-  };
+  }, []);
 
-  const handleSubmit = (event: ChangeEvent<HTMLFormElement>): void => {
-    event.preventDefault();
-    const form = event.target;
+  const handleGetArtist = useCallback((artist: IArtist, forDelete: boolean) => {
+    toDelete.current = forDelete;
+    editArtistRef.current = artist;
+  }, []);
 
-    if (!validated) {
-      setValidated(true);
-    }
-
-    if (!form.checkValidity()) {
-      event.stopPropagation();
-    } else {
-      const data = new FormData(form);
-      let url = 'artists';
-
-      if (isEdit) {
-        url = url + '/' + editArtistRef.current.id;
-      }
-
-      fetchService(url, user.access_token, isEdit ? 'PUT' : 'POST', data)
-        .then((newArtist: IArtist) => {
-          if (isEdit) {
-            dispatch({
-              type: ArtistReducerActions.EDITED,
-              artists: [newArtist],
-              id: newArtist.id,
-            });
-            handleShowToast(
-              `Artista "${newArtist.name}" actualizado exitosamente`,
-            );
-          } else {
-            dispatch({
-              type: ArtistReducerActions.ADDED,
-              artists: [newArtist],
-            });
-            handleShowToast(
-              `Artista "${newArtist.name}" agregado exitosamente`,
-            );
-          }
-          handleCloseModal();
-        })
-        .catch((e: Error) => {
-          setError(true);
-          setMessage(e.message);
-        });
-    }
-  };
-
-  const handleEdit = useCallback(
-    (artist: IArtist): void => {
-      setIsEdit(true);
-      handleShowModal();
-      editArtistRef.current = artist;
-    },
-    [artists],
-  );
-
-  const handlerDelete = useCallback(
-    (artist: IArtist): void => {
-      if (confirm('Va eliminar a este artista: ' + artist.name)) {
-        fetchService('artists/' + artist.id, user.access_token, 'DELETE')
-          .then(() => {
-            dispatch({ type: ArtistReducerActions.DELETED, id: artist.id });
-            handleShowToast(`Se eliminó el artista "${artist.name}"`);
-          })
-          .catch((reason: Error) => {
-            handleShowToast(reason.message, true);
-          });
-      }
-    },
-    [artists],
-  );
-
-  const handleShowToast = (message: string, error: boolean = false) => {
-    if (error) {
+  const handleShowToast = (message: string, isError: boolean = false) => {
+    if (isError) {
       setError(true);
     }
 
     setShowToast(true);
     setMessage(message);
+  };
+
+  const handleHideToast = useCallback(() => {
+    setShowToast(false);
+  }, []);
+
+  /**
+   * Set the error state to true, the message
+   * and execute the handleShowToast method
+   * @param message Mensaje a mostrar en el toast
+   */
+  const handleError = (message: string) => {
+    setError(true);
+    setMessage(message);
+    handleShowToast(message, true);
   };
 
   return (
@@ -155,26 +89,32 @@ export const Artists: React.FC = () => {
           Nuevo
         </Button>
       </div>
-      <ArtistTable
-        artists={artists}
-        handleEdit={handleEdit}
-        handlerDelete={handlerDelete}
-      />
+      {loading && (
+        <p className="text-center p-3">Cargando listado de artistas</p>
+      )}
+      {!loading && (
+        <ArtistTable
+          artists={artists}
+          handleGetArtist={handleGetArtist}
+          showModal={handleShowModal}
+        />
+      )}
       <ArtistModal
-        referido={editArtistRef}
-        isEdit={isEdit}
-        handleSubmit={handleSubmit}
+        dispatch={dispatch}
         handleClose={handleCloseModal}
         error={message}
         showModal={showModal}
-        validated={validated}
+        artistRef={editArtistRef}
+        toDelete={toDelete.current}
+        handleShowToast={handleShowToast}
+        handleError={handleError}
       />
       <CustomToast
         title={error ? 'Advertencia!' : 'Aviso'}
         message={message}
         type={error ? 'danger' : 'success'}
         showToast={showToast}
-        closeToast={() => setShowToast(false)}
+        closeToast={handleHideToast}
       />
     </>
   );

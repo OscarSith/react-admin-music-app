@@ -22,7 +22,6 @@ const getSuspender = (promise: Promise<any[]>) => {
   );
 
   const read = () => {
-    console.log(status);
     switch (status) {
       case 'pending':
         throw suspender;

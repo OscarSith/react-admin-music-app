@@ -1,16 +1,10 @@
 import { Table } from 'react-bootstrap';
 import { ItemArtist } from './ItemArtist';
-import { IArtist } from '../../interfaces/Artist';
 import { memo } from 'react';
-
-type ArtistTableProp = {
-  artists: IArtist[];
-  handlerDelete: (artist: IArtist) => void;
-  handleEdit: (artist: IArtist) => void;
-};
+import { ArtistTableProp } from '../../interfaces/globals';
 
 export const ArtistTable = memo(
-  ({ artists, handlerDelete, handleEdit }: ArtistTableProp) => {
+  ({ artists, showModal, handleGetArtist }: ArtistTableProp) => {
     return (
       <Table responsive hover>
         <thead>
@@ -28,8 +22,8 @@ export const ArtistTable = memo(
               <ItemArtist
                 key={artist.id}
                 artist={artist}
-                handleDelete={handlerDelete}
-                handleOpenEdit={handleEdit}
+                showModal={showModal}
+                handleGetArtist={handleGetArtist}
               />
             );
           })}

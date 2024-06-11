@@ -1,19 +1,13 @@
 import { Button, Image } from 'react-bootstrap';
 import { URL_SERVER_DOMAIN } from '../../constants';
-import { IArtist } from '../../interfaces/Artist';
 import { formatCreateDate } from '../../utils/utils';
+import { ItemArtistProps } from '../../interfaces/globals';
 
-type ItemArtistProps = {
-  artist: IArtist;
-  handleDelete: (artist: IArtist) => void;
-  handleOpenEdit: (artist: IArtist) => void;
-};
-
-export const ItemArtist: React.FC<ItemArtistProps> = ({
+export const ItemArtist = ({
   artist,
-  handleDelete,
-  handleOpenEdit,
-}) => {
+  showModal,
+  handleGetArtist,
+}: ItemArtistProps) => {
   return (
     <tr key={artist.id}>
       <td>
@@ -36,7 +30,10 @@ export const ItemArtist: React.FC<ItemArtistProps> = ({
           type="button"
           size="sm"
           variant="success"
-          onClick={() => handleOpenEdit(artist)}
+          onClick={() => {
+            showModal();
+            handleGetArtist(artist, false);
+          }}
         >
           Edit
         </Button>
@@ -44,7 +41,10 @@ export const ItemArtist: React.FC<ItemArtistProps> = ({
           type="button"
           size="sm"
           variant="danger"
-          onClick={() => handleDelete(artist)}
+          onClick={() => {
+            showModal();
+            handleGetArtist(artist, true);
+          }}
         >
           Del
         </Button>
