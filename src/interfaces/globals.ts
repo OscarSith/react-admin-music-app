@@ -1,3 +1,4 @@
+import { IAlbum } from './Album';
 import { IArtist } from './Artist';
 
 export interface IArtistsFetch {
@@ -23,4 +24,16 @@ export interface ArtistTableProp extends IArtistCrudBasic {
 
 export interface ItemArtistProps extends IArtistCrudBasic {
   artist: IArtist;
+}
+
+export interface ArtistReduceAction {
+  type: string;
+  artists?: IArtist[];
+  id?: number;
+}
+
+export interface AlbumReduceAction {
+  type: string;
+  albums?: IAlbum[];
+  id?: number;
 }

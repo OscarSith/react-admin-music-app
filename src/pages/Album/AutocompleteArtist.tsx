@@ -9,12 +9,8 @@ import React, {
 import { Form, ListGroup } from 'react-bootstrap';
 import { useDebounce } from '@uidotdev/usehooks';
 import { IArtist } from '../../interfaces/Artist';
-import { fetchService } from '../../utils/utils';
-
-type AutocompleteProps = {
-  token: string;
-  updateArtistId: (artistId: number) => void;
-};
+import { AutocompleteProps } from '../../types';
+import { searchArtistsByFullname } from '../../services/AlbumServices';
 
 const ARROW_UP = 'ArrowUp';
 const ARROW_DOWN = 'ArrowDown';
@@ -22,23 +18,21 @@ const PREFIX_ID_ITEM = 'item';
 const DEBOUNCE_TIME = 300;
 
 export const AutocompleteArtist: React.FC<AutocompleteProps> = ({
-  token,
   updateArtistId,
 }) => {
   const searchRef = useRef<HTMLInputElement>(null);
   const [suggestions, setSugestions] = useState<IArtist[]>([]);
   const [activar, setActivar] = useState(0);
   const [search, setSearch] = useState('');
+
   const avoidSearchWhenClickASuggestion = useRef(false);
   const searchDebounce = useDebounce(search, DEBOUNCE_TIME);
 
   useEffect(() => {
     if (searchDebounce && !avoidSearchWhenClickASuggestion.current) {
-      fetchService('artists/search-by?name=' + searchDebounce, token).then(
-        (suggestions) => {
-          setSugestions(suggestions);
-        },
-      );
+      searchArtistsByFullname(searchDebounce).then((suggestions) => {
+        setSugestions(suggestions);
+      });
     } else {
       setSugestions([]);
       avoidSearchWhenClickASuggestion.current = false;
@@ -51,17 +45,17 @@ export const AutocompleteArtist: React.FC<AutocompleteProps> = ({
 
     if (e.key === ARROW_DOWN && activar < suggestions.length) {
       setActivar((prev) => {
-        const d = ++prev;
-        const el = document.getElementById(PREFIX_ID_ITEM + d);
-        if (el) el.focus();
-        return d;
+        const index = ++prev;
+        const element = document.getElementById(PREFIX_ID_ITEM + index);
+        if (element) element.focus();
+        return index;
       });
     } else if (e.key === ARROW_UP && activar > 0) {
       setActivar((prev) => {
-        const d = --prev;
-        const el = document.getElementById(PREFIX_ID_ITEM + d);
-        if (el) el.focus();
-        return d;
+        const index = --prev;
+        const element = document.getElementById(PREFIX_ID_ITEM + index);
+        if (element) element.focus();
+        return index;
       });
     } else if (e.key === 'Escape') {
       if (
@@ -100,7 +94,7 @@ export const AutocompleteArtist: React.FC<AutocompleteProps> = ({
           value={search}
           onChange={handleChangeInputSearch}
         />
-        {setSugestions.length > 0 && (
+        {suggestions.length > 0 && (
           <ListGroup>
             {suggestions.map((suggestion, i) => {
               return (

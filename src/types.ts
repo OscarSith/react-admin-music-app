@@ -1,5 +1,7 @@
 import { MutableRefObject } from 'react';
 import { IArtist } from './interfaces/Artist';
+import { IAlbum } from './interfaces/Album';
+import { AlbumReduceAction } from './interfaces/globals';
 
 export type Props = {
   children: React.ReactNode;
@@ -15,15 +17,22 @@ export type ArtistModalProps = {
   handleShowToast: (message: string, error?: boolean) => void;
   handleError: (message: string) => void;
 };
-interface IArtistCrudBasic {
+
+export type AlbumModalProps = {
+  showModal: boolean;
+  closeModal: () => void;
+  dispatch: (values: AlbumReduceAction) => void;
+  artistId: number;
+  albumSelected: IAlbum;
+  toDelete: boolean;
+};
+
+export type AlbumItemProps = {
+  album: IAlbum;
   showModal: () => void;
-  handleGetArtist: (artist: IArtist, forDelete: boolean) => void;
-}
+  testGetAlbumSelected: (album: IAlbum, toDelete?: boolean) => void;
+};
 
-export interface ArtistTableProp extends IArtistCrudBasic {
-  artists: IArtist[];
-}
-
-export interface ItemArtistProps extends IArtistCrudBasic {
-  artist: IArtist;
-}
+export type AutocompleteProps = {
+  updateArtistId: (artistId: number) => void;
+};

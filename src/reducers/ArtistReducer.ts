@@ -1,10 +1,5 @@
 import { IArtist } from '../interfaces/Artist';
-
-interface ReduceAction {
-  type: string;
-  artists?: IArtist[];
-  id?: number;
-}
+import { ArtistReduceAction } from '../interfaces/globals';
 
 export const ArtistReducerActions = {
   SET: 'set',
@@ -15,7 +10,7 @@ export const ArtistReducerActions = {
 
 export const ArtistReducer = (
   artists: IArtist[],
-  action: ReduceAction,
+  action: ArtistReduceAction,
 ): IArtist[] => {
   switch (action.type) {
     case ArtistReducerActions.SET: {

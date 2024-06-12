@@ -1,20 +1,14 @@
 import React, { ChangeEvent, useRef, useState } from 'react';
 import { Button, Col, Form, Image, Modal, Row } from 'react-bootstrap';
 import { IAlbum } from '../../interfaces/Album';
-import { fetchService } from '../../utils/utils';
-import { useAuth } from '../../provider/AuthProvider';
 import { URL_SERVER_DOMAIN } from '../../constants';
-
-type AlbumModalProps = {
-  showModal: boolean;
-  closeModal: () => void;
-  addAlbum: (album: IAlbum) => void;
-  updateAlbum: (album: IAlbum) => void;
-  deleteAlbum: (id: number) => void;
-  artistId: number;
-  albumSelected: IAlbum;
-  toDelete: boolean;
-};
+import { AlbumModalProps } from '../../types';
+import { AlbumReducerActions } from '../../reducers/AlbumReducer';
+import {
+  addAlbum,
+  deleteAlbumById,
+  updateAlbumById,
+} from '../../services/AlbumServices';
 
 const INITIAL_ALBUM: IAlbum = {
   name: '',
@@ -25,14 +19,11 @@ const INITIAL_ALBUM: IAlbum = {
 export const AlbumModal: React.FC<AlbumModalProps> = ({
   showModal,
   closeModal,
-  addAlbum,
-  updateAlbum,
-  deleteAlbum,
+  dispatch,
   artistId,
   albumSelected,
   toDelete,
 }) => {
-  const { user } = useAuth();
   const imageRef = useRef(null);
   const [albumData, setAlbumData] = useState<IAlbum>(INITIAL_ALBUM);
   const [isTouched, setIsTouched] = useState({ name: false, picture: false });
@@ -72,13 +63,11 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({
     event.preventDefault();
 
     if (toDelete) {
-      const result = await fetchService(
-        'album/' + albumSelected.id,
-        user.access_token,
-        'DELETE',
-      );
-      console.log(result);
-      deleteAlbum(albumSelected.id);
+      await deleteAlbumById(albumSelected.id);
+      dispatch({
+        type: AlbumReducerActions.DELETED,
+        id: albumSelected.id,
+      });
       handleCloseModal();
       return;
     }
@@ -89,25 +78,22 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({
 
     if (albumSelected) {
       const formData = new FormData(event.currentTarget);
-      const result: IAlbum = await fetchService(
-        'album/' + albumSelected.id,
-        user.access_token,
-        'PUT',
-        formData,
-      );
+      const result: IAlbum = await updateAlbumById(albumSelected.id, formData);
 
-      updateAlbum(result);
+      dispatch({
+        type: AlbumReducerActions.EDITED,
+        albums: [result],
+        id: albumSelected.id,
+      });
     } else {
       const formData = new FormData(event.currentTarget);
       formData.append('artistId', artistId.toString());
 
-      const result: IAlbum = await fetchService(
-        'album',
-        user.access_token,
-        'POST',
-        formData,
-      );
-      addAlbum(result);
+      const result: IAlbum = await addAlbum(formData);
+      dispatch({
+        type: AlbumReducerActions.ADDED,
+        albums: [result],
+      });
     }
 
     handleCloseModal();

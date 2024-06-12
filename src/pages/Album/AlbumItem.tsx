@@ -1,14 +1,8 @@
 import { Button, Card, CardBody, Col } from 'react-bootstrap';
 import { formatCreateDate } from '../../utils/utils';
 import { URL_SERVER_DOMAIN } from '../../constants';
-import { IAlbum } from '../../interfaces/Album';
+import { AlbumItemProps } from '../../types';
 import React from 'react';
-
-type AlbumItemProps = {
-  album: IAlbum;
-  showModal: () => void;
-  testGetAlbumSelected: (album: IAlbum, toDelete?: boolean) => void;
-};
 
 export const AlbumItem: React.FC<AlbumItemProps> = ({
   album,

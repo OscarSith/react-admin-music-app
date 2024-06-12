@@ -1,15 +1,14 @@
 import { Button, Col, Row } from 'react-bootstrap';
-import React, { useEffect, useRef, useState } from 'react';
-import { useAuth } from '../../provider/AuthProvider';
-import { fetchService } from '../../utils/utils';
+import React, { useEffect, useReducer, useRef, useState } from 'react';
 import { IAlbum } from '../../interfaces/Album';
 import { AutocompleteArtist } from './AutocompleteArtist';
 import { AlbumItem } from './AlbumItem';
 import { AlbumModal } from './AlbumModal';
+import { albumsByArtistId } from '../../services/AlbumServices';
+import { AlbumReducer, AlbumReducerActions } from '../../reducers/AlbumReducer';
 
 export const Album: React.FC = () => {
-  const { user } = useAuth();
-  const [albums, setAlbums] = useState<IAlbum[]>([]);
+  const [albums, dispatch] = useReducer(AlbumReducer, []);
   const [artistId, setArtistId] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -19,34 +18,16 @@ export const Album: React.FC = () => {
   useEffect(() => {
     if (artistId) {
       setLoading(true);
-      fetchService('album/by-artist/' + artistId, user.access_token).then(
-        (data: IAlbum[]) => {
-          setAlbums(data.reverse());
-          setLoading(false);
-        },
-      );
+      albumsByArtistId(artistId)
+        .then((data: IAlbum[]) => {
+          dispatch({
+            type: AlbumReducerActions.SET,
+            albums: data,
+          });
+        })
+        .finally(() => setLoading(false));
     }
   }, [artistId]);
-
-  const addAlbum = (album: IAlbum) => {
-    setAlbums((prev) => [album, ...prev]);
-  };
-
-  const updateAlbum = (updatedAlbum: IAlbum) => {
-    setAlbums(
-      albums.map((album) => {
-        if (album.id === updatedAlbum.id) {
-          return updatedAlbum;
-        } else {
-          return album;
-        }
-      }),
-    );
-  };
-
-  const deleteAlbum = (id: number) => {
-    setAlbums(albums.filter((album) => album.id !== id));
-  };
 
   const handleShowModal = () => {
     setAlbumSelected(null);
@@ -67,10 +48,7 @@ export const Album: React.FC = () => {
       <h2 className="text-center mb-3">Listado de albunes</h2>
       <Row>
         <Col>
-          <AutocompleteArtist
-            token={user.access_token}
-            updateArtistId={setArtistId}
-          />
+          <AutocompleteArtist updateArtistId={setArtistId} />
         </Col>
         <Col xs="auto">
           <Button
@@ -84,7 +62,9 @@ export const Album: React.FC = () => {
       </Row>
       <Row xs="2" md="3" lg={4} xl={5}>
         {loading ? (
-          <h2>Loading...</h2>
+          <Col className="w-100 text-center mt-4">
+            <h2>Loading...</h2>
+          </Col>
         ) : (
           albums.map((album) => {
             return (
@@ -100,18 +80,16 @@ export const Album: React.FC = () => {
             );
           })
         )}
-        <Col>
-          {!loading && albums.length === 0 && artistId > 0 && (
+        {!loading && albums.length === 0 && artistId > 0 && (
+          <Col className="w-100 text-center mt-4">
             <h2>No hay resultados que mostrar</h2>
-          )}
-        </Col>
+          </Col>
+        )}
       </Row>
       <AlbumModal
         showModal={showModal}
         closeModal={handleHideModal}
-        addAlbum={addAlbum}
-        updateAlbum={updateAlbum}
-        deleteAlbum={deleteAlbum}
+        dispatch={dispatch}
         artistId={artistId}
         albumSelected={albumSelected}
         toDelete={toDeleteAlbum.current}
