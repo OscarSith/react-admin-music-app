@@ -22,6 +22,9 @@ const Header: React.FC = () => {
               <Nav.Link as={Link} to="album">
                 Albunes
               </Nav.Link>
+              <Nav.Link as={Link} to="song">
+                Canciones
+              </Nav.Link>
               {user.access_token === '' ? (
                 <Nav.Link as={Link} to="/login">
                   Login

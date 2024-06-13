@@ -7,6 +7,7 @@ import MainLayout from './components/MainLayout';
 import { Artists } from './pages/Artist/Artists';
 import { AuthProvider } from './provider/AuthProvider';
 import { Album } from './pages/Album/Album';
+import { Song } from './pages/Song/Song';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
             <Route index={true} element={<Home />} />
             <Route path="artists" element={<Artists />} />
             <Route path="album" element={<Album />} />
+            <Route path="song" element={<Song />} />
           </Route>
           <Route path="/login" element={<Login />} />
         </Routes>
