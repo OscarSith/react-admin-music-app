@@ -43,7 +43,7 @@ export const AlbumItem: React.FC<AlbumItemProps> = ({
           </div>
         </CardBody>
         <Card.Footer className="text-muted small">
-          {formatCreateDate(album.created_at)}
+          {album.created_at !== undefined && formatCreateDate(album.created_at)}
         </Card.Footer>
       </Card>
     </Col>

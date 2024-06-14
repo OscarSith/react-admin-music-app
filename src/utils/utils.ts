@@ -6,7 +6,12 @@ export const fetchService = async (
   method: string = 'GET',
   data?: FormData,
 ): Promise<any> => {
-  const { access_token } = JSON.parse(localStorage.getItem('user'));
+  const userCache = localStorage.getItem('user');
+  if (userCache === null) {
+    throw new Error('There is not user token');
+  }
+
+  const { access_token } = JSON.parse(userCache);
   return fetch(URL_SERVER_API + url, {
     headers: {
       Authorization: 'Bearer ' + access_token,

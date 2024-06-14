@@ -9,12 +9,7 @@ import {
   deleteAlbumById,
   updateAlbumById,
 } from '../../services/AlbumServices';
-
-const INITIAL_ALBUM: IAlbum = {
-  name: '',
-  id: 0,
-  picture: '',
-};
+import { INITIAL_ALBUM } from './Album';
 
 export const AlbumModal: React.FC<AlbumModalProps> = ({
   showModal,
@@ -24,22 +19,28 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({
   albumSelected,
   toDelete,
 }) => {
-  const imageRef = useRef(null);
+  const imageRef = useRef<any>(null);
   const [albumData, setAlbumData] = useState<IAlbum>(INITIAL_ALBUM);
   const [isTouched, setIsTouched] = useState({ name: false, picture: false });
 
   const handlePickImage = (event: ChangeEvent<HTMLInputElement>) => {
     let file = '';
-    if (event.target.files.item(0)) {
+    const fileElement = event.target.files?.item(0);
+
+    if (fileElement !== null) {
       const reader = new FileReader();
 
       reader.onload = (e: ProgressEvent<FileReader>) => {
-        const { result } = e.target;
-        imageRef.current.src = result.toString();
+        if (e.target !== null) {
+          const { result } = e.target;
+          imageRef.current.src = result?.toString();
+        }
       };
 
-      reader.readAsDataURL(event.target.files.item(0));
-      file = event.target.files.item(0).name;
+      if (fileElement instanceof File) {
+        reader.readAsDataURL(fileElement);
+        file = fileElement.name;
+      }
     } else {
       file = '';
     }
@@ -76,7 +77,7 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({
       return;
     }
 
-    if (albumSelected) {
+    if (albumSelected.id > 0) {
       const formData = new FormData(event.currentTarget);
       const result: IAlbum = await updateAlbumById(albumSelected.id, formData);
 
@@ -116,14 +117,14 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({
     if (toDelete) {
       return 'Advertencia!';
     }
-    return `Modal ${albumSelected ? 'Actualizar' : 'nuevo'} Album`;
+    return `Modal ${albumSelected.id > 0 ? 'Actualizar' : 'nuevo'} Album`;
   };
 
   const actionButtonText = () => {
     if (toDelete) {
       return 'Eliminar';
     }
-    return albumSelected ? 'Actualizar' : 'Agregar';
+    return albumSelected.id > 0 ? 'Actualizar' : 'Agregar';
   };
 
   return (
@@ -133,7 +134,7 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({
       onHide={handleCloseModal}
       onExited={resetTouchedInputs}
       onEnter={() => {
-        if (albumSelected) {
+        if (albumSelected.id > 0) {
           setAlbumData(albumSelected);
         }
       }}

@@ -59,7 +59,9 @@ export const AutocompleteArtist: React.FC<AutocompleteProps> = ({
       });
     } else if (e.key === 'Escape') {
       if (
-        (e.target as HTMLElement).parentElement.classList.contains('list-group')
+        (e.target as HTMLElement).parentElement?.classList.contains(
+          'list-group',
+        )
       ) {
         closeSuggestions();
       }
@@ -80,7 +82,7 @@ export const AutocompleteArtist: React.FC<AutocompleteProps> = ({
 
   const closeSuggestions = (): void => {
     setSugestions([]);
-    searchRef.current.focus();
+    searchRef.current?.focus();
     setActivar(0);
   };
 

@@ -7,12 +7,18 @@ import { AlbumModal } from './AlbumModal';
 import { albumsByArtistId } from '../../services/AlbumServices';
 import { AlbumReducer, AlbumReducerActions } from '../../reducers/AlbumReducer';
 
+export const INITIAL_ALBUM: IAlbum = {
+  name: '',
+  id: 0,
+  picture: '',
+};
+
 export const Album: React.FC = () => {
   const [albums, dispatch] = useReducer(AlbumReducer, []);
   const [artistId, setArtistId] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [albumSelected, setAlbumSelected] = useState<IAlbum>(null);
+  const [albumSelected, setAlbumSelected] = useState<IAlbum>(INITIAL_ALBUM);
   const toDeleteAlbum = useRef(false);
 
   useEffect(() => {
@@ -30,7 +36,7 @@ export const Album: React.FC = () => {
   }, [artistId]);
 
   const handleShowModal = () => {
-    setAlbumSelected(null);
+    setAlbumSelected(INITIAL_ALBUM);
     setShowModal(true);
   };
 
@@ -74,7 +80,9 @@ export const Album: React.FC = () => {
                 showModal={handleShowModalEdit}
                 testGetAlbumSelected={(album, toDelete) => {
                   setAlbumSelected(album);
-                  toDeleteAlbum.current = toDelete;
+                  if (toDelete !== undefined) {
+                    toDeleteAlbum.current = toDelete;
+                  }
                 }}
               />
             );
