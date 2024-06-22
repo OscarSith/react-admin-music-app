@@ -9,7 +9,7 @@ const updateArtist = async (
   formData: FormData,
   callback: (message: string) => void,
   handleCloseModal: () => void,
-  successCallback: (artist: IArtist) => void,
+  successCallback: (artist?: IArtist) => void,
 ): Promise<IArtist> => {
   return apiService(
     VERBO + '/' + id,
@@ -25,7 +25,7 @@ const addArtist = async (
   formData: FormData,
   callback: (err: string) => void,
   handleCloseModal: () => void,
-  successCallback: (artist: IArtist) => void,
+  successCallback: (artist?: IArtist) => void,
 ): Promise<IArtist> => {
   return apiService(
     VERBO,
@@ -56,7 +56,7 @@ const deleteArtist = async (
 const apiService = async (
   url: string,
   method: string,
-  formData: FormData,
+  formData: FormData | null,
   callback: (err: string) => void,
   handleCloseModal: () => void,
   successCallback: (artist?: IArtist) => any,
@@ -65,7 +65,7 @@ const apiService = async (
     .then(async (response: Response) => {
       if (!response.ok) {
         const error = (await response.json()) as ErrorFetch;
-        throw new Error(error.message, { cause: error.error });
+        throw new Error(error.message);
       }
 
       return response.json();

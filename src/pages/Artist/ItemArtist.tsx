@@ -1,3 +1,4 @@
+import React from 'react';
 import { Button, Image } from 'react-bootstrap';
 import { URL_SERVER_DOMAIN } from '../../constants';
 import { formatCreateDate } from '../../utils/utils';

@@ -15,10 +15,9 @@ import { ArtistModal, emptyArtist } from './ArtistModal';
 import { ArtistTable } from './ArtistTable';
 import { CustomToast } from '../../components/CustomToast';
 import { useFetch } from '../../hooks/useFetch';
-import { IArtistsFetch } from '../../interfaces/globals';
 
 export const Artists: React.FC = () => {
-  const { data, loading }: IArtistsFetch = useFetch('artists');
+  const { data, loading } = useFetch('artists');
   const [artists, dispatch] = useReducer(ArtistReducer, []);
   const editArtistRef = useRef<IArtist>(emptyArtist);
 

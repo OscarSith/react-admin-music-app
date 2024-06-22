@@ -1,8 +1,8 @@
+import React from 'react';
 import { Button, Card, CardBody, Col } from 'react-bootstrap';
 import { formatCreateDate } from '../../utils/utils';
 import { URL_SERVER_DOMAIN } from '../../constants';
 import { AlbumItemProps } from '../../types';
-import React from 'react';
 
 export const AlbumItem: React.FC<AlbumItemProps> = ({
   album,

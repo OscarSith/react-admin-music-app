@@ -1,5 +1,5 @@
-import { Button, Col, Row } from 'react-bootstrap';
 import React, { useEffect, useReducer, useRef, useState } from 'react';
+import { Button, Col, Row } from 'react-bootstrap';
 import { IAlbum } from '../../interfaces/Album';
 import { AutocompleteArtist } from './AutocompleteArtist';
 import { AlbumItem } from './AlbumItem';

@@ -12,9 +12,9 @@ export const useFetch = (
   method: string = 'GET',
   payload?: FormData,
 ) => {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<Array<any>>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // const abortController = new AbortController();
@@ -28,10 +28,10 @@ export const useFetch = (
 
         const errData = (await response.json()) as ErrorFetch;
 
-        throw new Error(errData.message, { cause: errData.error });
+        throw new Error(errData.message);
       })
       .then((data) => setData(data))
-      .catch((err: Error) => setError(err.cause + ', ' + err.message))
+      .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 

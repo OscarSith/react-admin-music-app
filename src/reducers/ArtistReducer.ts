@@ -14,15 +14,25 @@ export const ArtistReducer = (
 ): IArtist[] => {
   switch (action.type) {
     case ArtistReducerActions.SET: {
-      return [...action.artists];
+      if (action.artists) {
+        return [...action.artists];
+      }
+
+      return [...artists];
     }
     case ArtistReducerActions.ADDED: {
-      return [action.artists[0], ...artists];
+      if (action.artists) {
+        return [action.artists[0], ...artists];
+      }
+
+      return [...artists];
     }
     case ArtistReducerActions.EDITED: {
       for (let i = 0; i < artists.length; i++) {
         if (artists[i].id === action.id) {
-          artists[i] = Object.assign(artists[i], action.artists[0]);
+          if (action.artists) {
+            artists[i] = Object.assign(artists[i], action.artists[0]);
+          }
         }
       }
 

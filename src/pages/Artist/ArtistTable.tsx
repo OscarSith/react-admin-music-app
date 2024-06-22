@@ -1,6 +1,6 @@
+import React, { memo } from 'react';
 import { Table } from 'react-bootstrap';
 import { ItemArtist } from './ItemArtist';
-import { memo } from 'react';
 import { ArtistTableProp } from '../../interfaces/globals';
 
 export const ArtistTable = memo(

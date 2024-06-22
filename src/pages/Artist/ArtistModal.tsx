@@ -1,4 +1,4 @@
-import { ChangeEvent, useRef, useState } from 'react';
+import React, { ChangeEvent, useRef, useState } from 'react';
 import {
   Modal,
   Form,
@@ -88,23 +88,29 @@ export const ArtistModal = ({
           handleError,
           handleCloseModal,
           (artistUpdated) => {
-            dispatch({
-              type: ArtistReducerActions.EDITED,
-              artists: [artistUpdated],
-              id: artistUpdated.id,
-            });
-            handleShowToast(
-              `Artista "${artistUpdated.name}" actualizado exitosamente`,
-            );
+            if (artistUpdated) {
+              dispatch({
+                type: ArtistReducerActions.EDITED,
+                artists: [artistUpdated],
+                id: artistUpdated.id,
+              });
+              handleShowToast(
+                `Artista "${artistUpdated.name}" actualizado exitosamente`,
+              );
+            }
           },
         ).finally(() => setIsLoading(false));
       } else {
         addArtist(formData, handleError, handleCloseModal, (newArtist) => {
-          dispatch({
-            type: ArtistReducerActions.ADDED,
-            artists: [newArtist],
-          });
-          handleShowToast(`Artista "${newArtist.name}" agregado exitosamente.`);
+          if (newArtist) {
+            dispatch({
+              type: ArtistReducerActions.ADDED,
+              artists: [newArtist],
+            });
+            handleShowToast(
+              `Artista "${newArtist.name}" agregado exitosamente.`,
+            );
+          }
         }).finally(() => setIsLoading(false));
       }
     }
@@ -114,10 +120,15 @@ export const ArtistModal = ({
     const fileReader = new FileReader();
     fileReader.onload = (e: any) => {
       const { result } = e.target;
-      imagePreviewRef.current.src = result;
+      if (imagePreviewRef.current) {
+        imagePreviewRef.current.src = result;
+      }
     };
 
-    fileReader.readAsDataURL(event.target.files.item(0));
+    const fileItem = (event.target.files as FileList).item(0);
+    if (fileItem !== null) {
+      fileReader.readAsDataURL(fileItem);
+    }
   };
 
   const fillData = () => {
@@ -138,7 +149,7 @@ export const ArtistModal = ({
   };
 
   const onExited = () => {
-    if (!toDelete) {
+    if (!toDelete && imagePreviewRef.current) {
       imagePreviewRef.current.src = '#';
     }
   };
@@ -176,76 +187,73 @@ export const ArtistModal = ({
           <Modal.Title id="contained-new-artist"></Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {toDelete ? (
-            <p className="p-3">
-              Va eliminar a este artista:&nbsp;
-              <strong>
-                {artistRef.current.name + ' ' + artistRef.current.lastname}
-              </strong>
-            </p>
-          ) : (
-            <>
-              <FloatingLabel label="Nombre" className="mb-3" controlId="name">
-                <Form.Control
-                  type="text"
-                  name="name"
-                  placeholder="Nombre"
-                  required
-                  minLength={2}
-                ></Form.Control>
-                <Form.Control.Feedback type="invalid">
-                  El nombre es requerido
-                </Form.Control.Feedback>
-              </FloatingLabel>
-              <FloatingLabel
-                label="Apellido"
-                className="mb-3"
-                controlId="lastname"
-              >
-                <Form.Control
-                  type="text"
-                  name="lastname"
-                  placeholder="Apellido"
-                  minLength={2}
-                  required
-                ></Form.Control>
-                <Form.Control.Feedback type="invalid">
-                  El Apellido es requerido
-                </Form.Control.Feedback>
-              </FloatingLabel>
-              <Form.Group className="my-3" controlId="bio">
-                <Form.Label>Biografía</Form.Label>
-                <Form.Control as="textarea" rows={2} name="bio" />
-              </Form.Group>
-              <Form.Group controlId="avatar" className="mb-3">
-                <Row>
-                  <Col sm="8" lg="6">
-                    <Form.Label>Imagen</Form.Label>
-                    <Form.Control
-                      type="file"
-                      size="sm"
-                      name="avatar"
-                      required={artistRef.current.id === 0}
-                      onChange={onChangeFileEvent}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      La imagen es requerido
-                    </Form.Control.Feedback>
-                  </Col>
-                  <Col>
-                    <Image
-                      id="vista-previa"
-                      ref={imagePreviewRef}
-                      alt="Imagen previa del avatar"
-                      thumbnail={true}
-                      rounded
-                    />
-                  </Col>
-                </Row>
-              </Form.Group>
-              {error !== '' && <Alert variant="warning">{error}</Alert>}
-            </>
-          )}
+          <p className={'p-3 ' + (toDelete ? '' : 'd-none')}>
+            Va eliminar a este artista:&nbsp;
+            <strong>
+              {artistRef.current.name + ' ' + artistRef.current.lastname}
+            </strong>
+          </p>
+          <div className={toDelete ? 'd-none' : ''}>
+            <FloatingLabel label="Nombre" className="mb-3" controlId="name">
+              <Form.Control
+                type="text"
+                name="name"
+                placeholder="Nombre"
+                required
+                minLength={2}
+              ></Form.Control>
+              <Form.Control.Feedback type="invalid">
+                El nombre es requerido
+              </Form.Control.Feedback>
+            </FloatingLabel>
+            <FloatingLabel
+              label="Apellido"
+              className="mb-3"
+              controlId="lastname"
+            >
+              <Form.Control
+                type="text"
+                name="lastname"
+                placeholder="Apellido"
+                minLength={2}
+                required
+              ></Form.Control>
+              <Form.Control.Feedback type="invalid">
+                El Apellido es requerido
+              </Form.Control.Feedback>
+            </FloatingLabel>
+            <Form.Group className="my-3" controlId="bio">
+              <Form.Label>Biografía</Form.Label>
+              <Form.Control as="textarea" rows={2} name="bio" />
+            </Form.Group>
+            <Form.Group controlId="avatar" className="mb-3">
+              <Row>
+                <Col sm="8" lg="6">
+                  <Form.Label>Imagen</Form.Label>
+                  <Form.Control
+                    type="file"
+                    size="sm"
+                    name="avatar"
+                    required={artistRef.current.id === 0}
+                    onChange={onChangeFileEvent}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    La imagen es requerido
+                  </Form.Control.Feedback>
+                </Col>
+                <Col>
+                  <Image
+                    id="vista-previa"
+                    ref={imagePreviewRef}
+                    alt="Imagen previa del avatar"
+                    thumbnail={true}
+                    rounded
+                  />
+                </Col>
+              </Row>
+            </Form.Group>
+            {error !== '' && <Alert variant="warning">{error}</Alert>}
+          </div>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseModal}>

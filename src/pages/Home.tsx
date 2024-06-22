@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { Table } from 'react-bootstrap';
 import { UserTable } from './UserTable';
 import ErrorBoundary from '../utils/ErrorBoundary';
