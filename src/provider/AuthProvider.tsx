@@ -1,8 +1,12 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, {
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useMemo,
+} from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useNavigate } from 'react-router-dom';
 import { IAuth } from '../interfaces/Auth';
-import { Props } from '../types';
 
 interface IUserContext {
   user: IAuth;
@@ -19,7 +23,7 @@ const UserContext = createContext<IUserContext>({
 /**
  * Manage the user context
  */
-export const AuthProvider = ({ children }: Props) => {
+export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [user, setUser] = useLocalStorage('user', null);
   const navigate = useNavigate();
 

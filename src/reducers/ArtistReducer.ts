@@ -1,3 +1,4 @@
+import { Reducer } from 'react';
 import { IArtist } from '../interfaces/Artist';
 import { ArtistReduceAction } from '../interfaces/globals';
 
@@ -8,21 +9,21 @@ export const ArtistReducerActions = {
   DELETED: 'deleted',
 };
 
-export const ArtistReducer = (
+export const ArtistReducer: Reducer<IArtist[], ArtistReduceAction> = (
   artists: IArtist[],
   action: ArtistReduceAction,
-): IArtist[] => {
+) => {
   switch (action.type) {
     case ArtistReducerActions.SET: {
       if (action.artists) {
-        return [...action.artists];
+        return structuredClone(action.artists.reverse());
       }
 
       return [...artists];
     }
     case ArtistReducerActions.ADDED: {
-      if (action.artists) {
-        return [action.artists[0], ...artists];
+      if (action.artist) {
+        return [action.artist, ...artists];
       }
 
       return [...artists];
@@ -30,8 +31,8 @@ export const ArtistReducer = (
     case ArtistReducerActions.EDITED: {
       for (let i = 0; i < artists.length; i++) {
         if (artists[i].id === action.id) {
-          if (action.artists) {
-            artists[i] = Object.assign(artists[i], action.artists[0]);
+          if (action.artist) {
+            artists[i] = Object.assign(artists[i], action.artist);
           }
         }
       }

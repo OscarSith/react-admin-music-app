@@ -1,19 +1,10 @@
-import { MutableRefObject } from 'react';
-import { IArtist } from './interfaces/Artist';
 import { IAlbum } from './interfaces/Album';
 import { AlbumReduceAction } from './interfaces/globals';
-
-export type Props = {
-  children: React.ReactNode;
-};
 
 export type ArtistModalProps = {
   showModal: boolean;
   error: string;
-  artistRef: MutableRefObject<IArtist>;
-  toDelete: boolean;
   handleClose: () => void;
-  dispatch: (data: any) => void;
   handleShowToast: (message: string, error?: boolean) => void;
   handleError: (message: string) => void;
 };

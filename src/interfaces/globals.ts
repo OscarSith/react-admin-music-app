@@ -1,10 +1,12 @@
+import { Dispatch, MutableRefObject } from 'react';
 import { IAlbum } from './Album';
 import { IArtist } from './Artist';
+import { ISong } from './Song';
 
 export interface IArtistsFetch {
   data: IArtist[];
   loading: boolean;
-  error: string | null;
+  error?: string | null;
 }
 
 export interface ErrorFetch {
@@ -13,13 +15,8 @@ export interface ErrorFetch {
   statusCode: number;
 }
 
-interface IArtistCrudBasic {
+export interface IArtistCrudBasic {
   showModal: () => void;
-  handleGetArtist: (artist: IArtist, forDelete: boolean) => void;
-}
-
-export interface ArtistTableProp extends IArtistCrudBasic {
-  artists: IArtist[];
 }
 
 export interface ItemArtistProps extends IArtistCrudBasic {
@@ -28,12 +25,27 @@ export interface ItemArtistProps extends IArtistCrudBasic {
 
 export interface ArtistReduceAction {
   type: string;
+  artist?: IArtist;
   artists?: IArtist[];
   id?: number;
+}
+
+export interface IArtistContext {
+  artists: IArtist[];
+  artistRef: MutableRefObject<IArtist>;
+  toDelete: MutableRefObject<boolean>;
+  dispatch: Dispatch<ArtistReduceAction>;
 }
 
 export interface AlbumReduceAction {
   type: string;
   albums?: IAlbum[];
+  id?: number;
+}
+
+export interface SongReduceAction {
+  type: string;
+  song?: ISong;
+  songs?: ISong[];
   id?: number;
 }

@@ -4,7 +4,7 @@ export const fetchService = async (
   url: string,
   // signal: AbortSignal,
   method: string = 'GET',
-  data?: FormData,
+  data?: FormData | null,
 ): Promise<any> => {
   const userCache = localStorage.getItem('user');
   if (userCache === null) {

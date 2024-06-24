@@ -3,12 +3,10 @@ import { Button, Image } from 'react-bootstrap';
 import { URL_SERVER_DOMAIN } from '../../constants';
 import { formatCreateDate } from '../../utils/utils';
 import { ItemArtistProps } from '../../interfaces/globals';
+import { useArtistContext } from './store/StoreArtistContext';
 
-export const ItemArtist = ({
-  artist,
-  showModal,
-  handleGetArtist,
-}: ItemArtistProps) => {
+export const ItemArtist = ({ artist, showModal }: ItemArtistProps) => {
+  const { artistRef, toDelete } = useArtistContext();
   return (
     <tr key={artist.id}>
       <td>
@@ -33,7 +31,7 @@ export const ItemArtist = ({
           variant="success"
           onClick={() => {
             showModal();
-            handleGetArtist(artist, false);
+            artistRef.current = artist;
           }}
         >
           Edit
@@ -44,7 +42,8 @@ export const ItemArtist = ({
           variant="danger"
           onClick={() => {
             showModal();
-            handleGetArtist(artist, true);
+            artistRef.current = artist;
+            toDelete.current = true;
           }}
         >
           Del

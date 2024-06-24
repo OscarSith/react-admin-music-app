@@ -11,7 +11,6 @@ import {
   Spinner,
 } from 'react-bootstrap';
 import { URL_SERVER_DOMAIN } from '../../constants';
-import { IArtist } from '../../interfaces/Artist';
 import {
   addArtist,
   deleteArtist,
@@ -19,26 +18,16 @@ import {
 } from '../../services/ArtistCrudServices';
 import { ArtistReducerActions } from '../../reducers/ArtistReducer';
 import { ArtistModalProps } from '../../types';
-
-export const emptyArtist: IArtist = {
-  avatar: '',
-  bio: '',
-  id: 0,
-  lastname: '',
-  name: '',
-  created_at: '',
-};
+import { useArtistContext, emptyArtist } from './store/StoreArtistContext';
 
 export const ArtistModal = ({
   showModal,
   error,
-  artistRef,
-  toDelete,
-  dispatch,
   handleClose,
   handleShowToast,
   handleError,
 }: ArtistModalProps) => {
+  const { dispatch, artistRef, toDelete } = useArtistContext();
   const [validated, setValidated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -52,33 +41,26 @@ export const ArtistModal = ({
 
   const handleSubmit = (event: ChangeEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    const form = event.target;
+
+    if (toDelete.current) {
+      deleteArtist(artistRef.current.id, handleError, handleCloseModal, () => {
+        dispatch({
+          type: ArtistReducerActions.DELETED,
+          id: artistRef.current.id,
+        });
+        handleShowToast(`Se eliminó el artista "${artistRef.current.name}"`);
+      });
+      return;
+    }
 
     if (!validated) {
       setValidated(true);
     }
 
+    const form = event.target;
     if (!form.checkValidity()) {
       event.stopPropagation();
     } else {
-      if (toDelete) {
-        deleteArtist(
-          artistRef.current.id,
-          handleError,
-          handleCloseModal,
-          () => {
-            dispatch({
-              type: ArtistReducerActions.DELETED,
-              id: artistRef.current.id,
-            });
-            handleShowToast(
-              `Se eliminó el artista "${artistRef.current.name}"`,
-            );
-          },
-        );
-        return;
-      }
-
       const formData = new FormData(form);
       setIsLoading(true);
       if (artistRef.current.id > 0) {
@@ -91,7 +73,7 @@ export const ArtistModal = ({
             if (artistUpdated) {
               dispatch({
                 type: ArtistReducerActions.EDITED,
-                artists: [artistUpdated],
+                artist: artistUpdated,
                 id: artistUpdated.id,
               });
               handleShowToast(
@@ -105,7 +87,7 @@ export const ArtistModal = ({
           if (newArtist) {
             dispatch({
               type: ArtistReducerActions.ADDED,
-              artists: [newArtist],
+              artist: newArtist,
             });
             handleShowToast(
               `Artista "${newArtist.name}" agregado exitosamente.`,
@@ -132,7 +114,7 @@ export const ArtistModal = ({
   };
 
   const fillData = () => {
-    if (artistRef.current.id > 0 && !toDelete) {
+    if (artistRef.current.id > 0 && !toDelete.current) {
       const inputName = document.getElementById('name') as HTMLInputElement;
       const inputLastName = document.getElementById(
         'lastname',
@@ -149,13 +131,14 @@ export const ArtistModal = ({
   };
 
   const onExited = () => {
-    if (!toDelete && imagePreviewRef.current) {
+    toDelete.current = false;
+    if (!toDelete.current && imagePreviewRef.current) {
       imagePreviewRef.current.src = '#';
     }
   };
 
   const headerTitle = () => {
-    if (toDelete) {
+    if (toDelete.current) {
       return 'Advertencia';
     }
 
@@ -163,7 +146,7 @@ export const ArtistModal = ({
   };
 
   const actionTextButton = () => {
-    if (toDelete) {
+    if (toDelete.current) {
       return 'Eliminar';
     }
 
@@ -187,13 +170,13 @@ export const ArtistModal = ({
           <Modal.Title id="contained-new-artist"></Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p className={'p-3 ' + (toDelete ? '' : 'd-none')}>
+          <p className={'p-3 ' + (toDelete.current ? '' : 'd-none')}>
             Va eliminar a este artista:&nbsp;
             <strong>
               {artistRef.current.name + ' ' + artistRef.current.lastname}
             </strong>
           </p>
-          <div className={toDelete ? 'd-none' : ''}>
+          <div className={toDelete.current ? 'd-none' : ''}>
             <FloatingLabel label="Nombre" className="mb-3" controlId="name">
               <Form.Control
                 type="text"

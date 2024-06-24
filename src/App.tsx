@@ -1,3 +1,4 @@
+import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import Home from './pages/Home';
@@ -8,6 +9,8 @@ import { Artists } from './pages/Artist/Artists';
 import { AuthProvider } from './provider/AuthProvider';
 import { Album } from './pages/Album/Album';
 import { Song } from './pages/Song/Song';
+import { StoreSongProvider } from './pages/Song/store/StoreSongContext';
+import { StoreArtistProvider } from './pages/Artist/store/StoreArtistContext';
 
 function App() {
   return (
@@ -16,9 +19,23 @@ function App() {
         <Routes>
           <Route path="/" element={<MainLayout />} errorElement={<ErrorPage />}>
             <Route index={true} element={<Home />} />
-            <Route path="artists" element={<Artists />} />
+            <Route
+              path="artists"
+              element={
+                <StoreArtistProvider>
+                  <Artists />
+                </StoreArtistProvider>
+              }
+            />
             <Route path="album" element={<Album />} />
-            <Route path="song" element={<Song />} />
+            <Route
+              path="song"
+              element={
+                <StoreSongProvider>
+                  <Song />
+                </StoreSongProvider>
+              }
+            />
           </Route>
           <Route path="/login" element={<Login />} />
         </Routes>

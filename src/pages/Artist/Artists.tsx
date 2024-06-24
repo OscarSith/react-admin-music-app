@@ -1,45 +1,18 @@
-import React, {
-  useCallback,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-} from 'react';
-import { Button } from 'react-bootstrap';
-import { IArtist } from '../../interfaces/Artist';
-import {
-  ArtistReducer,
-  ArtistReducerActions,
-} from '../../reducers/ArtistReducer';
-import { ArtistModal, emptyArtist } from './ArtistModal';
+import React, { Suspense, useCallback, useState } from 'react';
+import { Button, Table } from 'react-bootstrap';
+import { ArtistModal } from './ArtistModal';
 import { ArtistTable } from './ArtistTable';
 import { CustomToast } from '../../components/CustomToast';
-import { useFetch } from '../../hooks/useFetch';
 
 export const Artists: React.FC = () => {
-  const { data, loading } = useFetch('artists');
-  const [artists, dispatch] = useReducer(ArtistReducer, []);
-  const editArtistRef = useRef<IArtist>(emptyArtist);
-
   // States
   const [message, setMessage] = useState('');
   const [error, setError] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const toDelete = useRef(false);
-
-  useEffect(() => {
-    if (data) {
-      dispatch({
-        type: ArtistReducerActions.SET,
-        artists: data.reverse(),
-      });
-    }
-  }, [data]);
 
   const handleCloseModal = () => {
     setShowModal(false);
-    toDelete.current = false;
   };
 
   const handleShowModal = useCallback(() => {
@@ -49,11 +22,6 @@ export const Artists: React.FC = () => {
     setError(false);
     setMessage('');
     setShowModal(true);
-  }, []);
-
-  const handleGetArtist = useCallback((artist: IArtist, forDelete: boolean) => {
-    toDelete.current = forDelete;
-    editArtistRef.current = artist;
   }, []);
 
   const handleShowToast = (message: string, isError: boolean = false) => {
@@ -80,6 +48,16 @@ export const Artists: React.FC = () => {
     handleShowToast(message, true);
   };
 
+  const loadingTable = () => {
+    return (
+      <tr className="text-center">
+        <td colSpan={5} className="p-3">
+          Cargando listado de artistas
+        </td>
+      </tr>
+    );
+  };
+
   return (
     <>
       <h2 className="text-center mb-3">Lista de Artistas</h2>
@@ -88,23 +66,26 @@ export const Artists: React.FC = () => {
           Nuevo
         </Button>
       </div>
-      {loading && (
-        <p className="text-center p-3">Cargando listado de artistas</p>
-      )}
-      {!loading && (
-        <ArtistTable
-          artists={artists}
-          handleGetArtist={handleGetArtist}
-          showModal={handleShowModal}
-        />
-      )}
+      <Table responsive hover>
+        <thead>
+          <tr>
+            <td width="30%">Nombre Completo</td>
+            <td width="20%">Imagen</td>
+            <td>Bio</td>
+            <td>F. Creación</td>
+            <td></td>
+          </tr>
+        </thead>
+        <tbody>
+          <Suspense fallback={loadingTable()}>
+            <ArtistTable showModal={handleShowModal} />
+          </Suspense>
+        </tbody>
+      </Table>
       <ArtistModal
-        dispatch={dispatch}
         handleClose={handleCloseModal}
         error={message}
         showModal={showModal}
-        artistRef={editArtistRef}
-        toDelete={toDelete.current}
         handleShowToast={handleShowToast}
         handleError={handleError}
       />

@@ -1,34 +1,31 @@
-import React, { memo } from 'react';
-import { Table } from 'react-bootstrap';
+import React, { memo, useEffect } from 'react';
 import { ItemArtist } from './ItemArtist';
-import { ArtistTableProp } from '../../interfaces/globals';
+import { IArtistCrudBasic } from '../../interfaces/globals';
+import { useArtistContext } from './store/StoreArtistContext';
+import { ArtistReducerActions } from '../../reducers/ArtistReducer';
+import { fetchData } from '../../utils/fetchData';
+import { IArtist } from '../../interfaces/Artist';
 
-export const ArtistTable = memo(
-  ({ artists, showModal, handleGetArtist }: ArtistTableProp) => {
-    return (
-      <Table responsive hover>
-        <thead>
-          <tr>
-            <td width="30%">Nombre Completo</td>
-            <td width="20%">Imagen</td>
-            <td>Bio</td>
-            <td>F. Creación</td>
-            <td></td>
-          </tr>
-        </thead>
-        <tbody>
-          {artists.map((artist) => {
-            return (
-              <ItemArtist
-                key={artist.id}
-                artist={artist}
-                showModal={showModal}
-                handleGetArtist={handleGetArtist}
-              />
-            );
-          })}
-        </tbody>
-      </Table>
-    );
-  },
-);
+const resource = fetchData('artists');
+
+export const ArtistTable = memo(({ showModal }: IArtistCrudBasic) => {
+  const { dispatch, artists } = useArtistContext();
+  const artistsData = resource.read() as IArtist[];
+
+  useEffect(() => {
+    dispatch({
+      type: ArtistReducerActions.SET,
+      artists: artistsData,
+    });
+  }, []);
+
+  return (
+    <>
+      {artists.map((artist) => {
+        return (
+          <ItemArtist key={artist.id} artist={artist} showModal={showModal} />
+        );
+      })}
+    </>
+  );
+});
