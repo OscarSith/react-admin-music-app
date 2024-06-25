@@ -1,3 +1,4 @@
+import { Dispatch, MutableRefObject } from 'react';
 import { IAlbum } from './interfaces/Album';
 import { AlbumReduceAction } from './interfaces/globals';
 
@@ -12,18 +13,22 @@ export type ArtistModalProps = {
 export type AlbumModalProps = {
   showModal: boolean;
   closeModal: () => void;
-  dispatch: (values: AlbumReduceAction) => void;
   artistId: number;
-  albumSelected: IAlbum;
-  toDelete: boolean;
 };
 
 export type AlbumItemProps = {
   album: IAlbum;
   showModal: () => void;
-  testGetAlbumSelected: (album: IAlbum, toDelete?: boolean) => void;
 };
 
 export type AutocompleteProps = {
   updateArtistId: (artistId: number) => void;
+};
+
+export type TypeAlbumContext = {
+  albums: IAlbum[];
+  albumSelected: IAlbum | null;
+  updateAlbumSelected: (album: IAlbum | null, initialState?: boolean) => void;
+  toDelete: MutableRefObject<boolean>;
+  dispatch: Dispatch<AlbumReduceAction>;
 };

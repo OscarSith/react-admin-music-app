@@ -9,18 +9,16 @@ import {
   deleteAlbumById,
   updateAlbumById,
 } from '../../services/AlbumServices';
-import { INITIAL_ALBUM } from './Album';
+import { INITIAL_ALBUM, useAlbumContext } from './store/StoreAlbumContext';
 
 export const AlbumModal: React.FC<AlbumModalProps> = ({
   showModal,
   closeModal,
-  dispatch,
   artistId,
-  albumSelected,
-  toDelete,
 }) => {
+  const { albumSelected, dispatch, toDelete } = useAlbumContext();
   const imageRef = useRef<any>(null);
-  const [albumData, setAlbumData] = useState<IAlbum>(INITIAL_ALBUM);
+  const [albumInputs, setAlbumInputs] = useState<IAlbum>(INITIAL_ALBUM);
   const [isTouched, setIsTouched] = useState({ name: false, picture: false });
 
   const handlePickImage = (event: ChangeEvent<HTMLInputElement>) => {
@@ -45,40 +43,36 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({
       file = '';
     }
 
-    setAlbumData((prev) => ({
+    setAlbumInputs((prev) => ({
       ...prev,
       picture: file,
     }));
+
     if (!isTouched.picture) {
       setIsTouched((prev) => ({ ...prev, picture: !prev.picture }));
     }
   };
 
   const handleChangeName = (event: ChangeEvent<HTMLInputElement>) => {
-    setAlbumData((prevState) => ({ ...prevState, name: event.target.value }));
-    if (!isTouched.name)
+    setAlbumInputs((prevState) => ({ ...prevState, name: event.target.value }));
+
+    if (!isTouched.name) {
       setIsTouched((prev) => ({ ...prev, name: !prev.name }));
+    }
   };
 
   const handleSubmit = async (event: ChangeEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (toDelete) {
-      await deleteAlbumById(albumSelected.id);
-      dispatch({
-        type: AlbumReducerActions.DELETED,
-        id: albumSelected.id,
-      });
-      handleCloseModal();
+    handleDeleteAlbum();
+
+    if (!(albumInputs.name.trim() !== '' && albumInputs.picture !== '')) {
       return;
     }
 
-    if (!(albumData.name.trim() !== '' && albumData.picture !== '')) {
-      return;
-    }
+    const formData = new FormData(event.currentTarget);
 
-    if (albumSelected.id > 0) {
-      const formData = new FormData(event.currentTarget);
+    if (albumSelected) {
       const result: IAlbum = await updateAlbumById(albumSelected.id, formData);
 
       dispatch({
@@ -87,7 +81,6 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({
         id: albumSelected.id,
       });
     } else {
-      const formData = new FormData(event.currentTarget);
       formData.append('artistId', artistId.toString());
 
       const result: IAlbum = await addAlbum(formData);
@@ -100,12 +93,25 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({
     handleCloseModal();
   };
 
+  const handleDeleteAlbum = async () => {
+    if (toDelete.current && albumSelected) {
+      await deleteAlbumById(albumSelected.id);
+      dispatch({
+        type: AlbumReducerActions.DELETED,
+        id: albumSelected.id,
+      });
+      handleCloseModal();
+      return;
+    }
+  };
+
   const handleCloseModal = () => {
-    setAlbumData(INITIAL_ALBUM);
+    setAlbumInputs(INITIAL_ALBUM);
     closeModal();
   };
 
   const resetTouchedInputs = () => {
+    handleCloseModal();
     setIsTouched((prevState) => ({
       ...prevState,
       name: false,
@@ -114,28 +120,27 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({
   };
 
   const modalTitle = () => {
-    if (toDelete) {
+    if (toDelete.current) {
       return 'Advertencia!';
     }
-    return `Modal ${albumSelected.id > 0 ? 'Actualizar' : 'nuevo'} Album`;
+    return `Modal ${albumSelected ? 'Actualizar' : 'nuevo'} Album`;
   };
 
   const actionButtonText = () => {
-    if (toDelete) {
+    if (toDelete.current) {
       return 'Eliminar';
     }
-    return albumSelected.id > 0 ? 'Actualizar' : 'Agregar';
+    return albumSelected ? 'Actualizar' : 'Agregar';
   };
 
   return (
     <Modal
       centered
       show={showModal}
-      onHide={handleCloseModal}
       onExited={resetTouchedInputs}
       onEnter={() => {
-        if (albumSelected.id > 0) {
-          setAlbumData(albumSelected);
+        if (albumSelected) {
+          setAlbumInputs(albumSelected);
         }
       }}
     >
@@ -144,7 +149,7 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({
           <Modal.Title id="contained-new-artist">{modalTitle()}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {toDelete ? (
+          {toDelete.current && albumSelected ? (
             <p className="mb-0">
               Va a eliminar este album "{albumSelected.name}"?
             </p>
@@ -155,9 +160,9 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({
                 <Form.Control
                   type="text"
                   name="name"
-                  value={albumData.name}
+                  value={albumInputs.name}
                   onChange={handleChangeName}
-                  isInvalid={isTouched.name && albumData.name === ''}
+                  isInvalid={isTouched.name && albumInputs.name === ''}
                 />
                 <Form.Control.Feedback type="invalid">
                   Este campo es requerido
@@ -171,7 +176,9 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({
                       type="file"
                       name="picture"
                       onChange={handlePickImage}
-                      isInvalid={isTouched.picture && albumData.picture === ''}
+                      isInvalid={
+                        isTouched.picture && albumInputs.picture === ''
+                      }
                     />
 
                     <Form.Control.Feedback type="invalid">
@@ -182,7 +189,7 @@ export const AlbumModal: React.FC<AlbumModalProps> = ({
                 <Col>
                   <Image
                     ref={imageRef}
-                    src={URL_SERVER_DOMAIN + albumData.picture}
+                    src={URL_SERVER_DOMAIN + albumInputs.picture}
                     alt="Image preview"
                     thumbnail
                   />

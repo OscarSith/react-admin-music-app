@@ -11,6 +11,7 @@ import { Album } from './pages/Album/Album';
 import { Song } from './pages/Song/Song';
 import { StoreSongProvider } from './pages/Song/store/StoreSongContext';
 import { StoreArtistProvider } from './pages/Artist/store/StoreArtistContext';
+import { StoreAlbumProvider } from './pages/Album/store/StoreAlbumContext';
 
 function App() {
   return (
@@ -27,7 +28,14 @@ function App() {
                 </StoreArtistProvider>
               }
             />
-            <Route path="album" element={<Album />} />
+            <Route
+              path="album"
+              element={
+                <StoreAlbumProvider>
+                  <Album />
+                </StoreAlbumProvider>
+              }
+            />
             <Route
               path="song"
               element={

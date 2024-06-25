@@ -1,25 +1,18 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Col, Row } from 'react-bootstrap';
 import { IAlbum } from '../../interfaces/Album';
 import { AutocompleteArtist } from './AutocompleteArtist';
 import { AlbumItem } from './AlbumItem';
 import { AlbumModal } from './AlbumModal';
 import { albumsByArtistId } from '../../services/AlbumServices';
-import { AlbumReducer, AlbumReducerActions } from '../../reducers/AlbumReducer';
-
-export const INITIAL_ALBUM: IAlbum = {
-  name: '',
-  id: 0,
-  picture: '',
-};
+import { AlbumReducerActions } from '../../reducers/AlbumReducer';
+import { useAlbumContext } from './store/StoreAlbumContext';
 
 export const Album: React.FC = () => {
-  const [albums, dispatch] = useReducer(AlbumReducer, []);
+  const { albums, dispatch, toDelete, updateAlbumSelected } = useAlbumContext();
   const [artistId, setArtistId] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [albumSelected, setAlbumSelected] = useState<IAlbum>(INITIAL_ALBUM);
-  const toDeleteAlbum = useRef(false);
 
   useEffect(() => {
     if (artistId) {
@@ -36,7 +29,7 @@ export const Album: React.FC = () => {
   }, [artistId]);
 
   const handleShowModal = () => {
-    setAlbumSelected(INITIAL_ALBUM);
+    updateAlbumSelected(null, true);
     setShowModal(true);
   };
 
@@ -46,7 +39,7 @@ export const Album: React.FC = () => {
 
   const handleHideModal = () => {
     setShowModal(false);
-    toDeleteAlbum.current = false;
+    toDelete.current = false;
   };
 
   return (
@@ -78,12 +71,6 @@ export const Album: React.FC = () => {
                 key={album.id}
                 album={album}
                 showModal={handleShowModalEdit}
-                testGetAlbumSelected={(album, toDelete) => {
-                  setAlbumSelected(album);
-                  if (toDelete !== undefined) {
-                    toDeleteAlbum.current = toDelete;
-                  }
-                }}
               />
             );
           })
@@ -97,10 +84,7 @@ export const Album: React.FC = () => {
       <AlbumModal
         showModal={showModal}
         closeModal={handleHideModal}
-        dispatch={dispatch}
         artistId={artistId}
-        albumSelected={albumSelected}
-        toDelete={toDeleteAlbum.current}
       />
     </>
   );

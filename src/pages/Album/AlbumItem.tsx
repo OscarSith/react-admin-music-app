@@ -3,12 +3,10 @@ import { Button, Card, CardBody, Col } from 'react-bootstrap';
 import { formatCreateDate } from '../../utils/utils';
 import { URL_SERVER_DOMAIN } from '../../constants';
 import { AlbumItemProps } from '../../types';
+import { useAlbumContext } from './store/StoreAlbumContext';
 
-export const AlbumItem: React.FC<AlbumItemProps> = ({
-  album,
-  showModal,
-  testGetAlbumSelected,
-}) => {
+export const AlbumItem: React.FC<AlbumItemProps> = ({ album, showModal }) => {
+  const { updateAlbumSelected, toDelete } = useAlbumContext();
   return (
     <Col>
       <Card className="mb-4">
@@ -24,7 +22,7 @@ export const AlbumItem: React.FC<AlbumItemProps> = ({
               size="sm"
               variant="success"
               onClick={() => {
-                testGetAlbumSelected(album);
+                updateAlbumSelected(album);
                 showModal();
               }}
             >
@@ -34,7 +32,8 @@ export const AlbumItem: React.FC<AlbumItemProps> = ({
               size="sm"
               variant="danger"
               onClick={() => {
-                testGetAlbumSelected(album, true);
+                updateAlbumSelected(album);
+                toDelete.current = true;
                 showModal();
               }}
             >
