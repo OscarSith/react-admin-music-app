@@ -4,7 +4,7 @@ export const fetchService = async (
   url: string,
   // signal: AbortSignal,
   method: string = 'GET',
-  data?: FormData | null,
+  data?: FormData | string | null,
 ): Promise<any> => {
   const userCache = localStorage.getItem('user');
   if (userCache === null) {
@@ -12,9 +12,15 @@ export const fetchService = async (
   }
 
   const { access_token } = JSON.parse(userCache);
+  let newHeader = {};
+
+  if (data && !(data instanceof FormData)) {
+    newHeader = { 'Content-Type': 'application/json' };
+  }
   return fetch(URL_SERVER_API + url, {
     headers: {
       Authorization: 'Bearer ' + access_token,
+      ...newHeader,
     },
     body: data,
     method,

@@ -1,0 +1,3 @@
+#container-list-songs .list-group-item:hover button.d-none {
+  display: block !important;
+}
