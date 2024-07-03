@@ -6,12 +6,12 @@ export const fetchService = async (
   method: string = 'GET',
   data?: FormData | string | null,
 ): Promise<any> => {
-  const userCache = localStorage.getItem('user');
+  const userCache = JSON.parse(localStorage.getItem('user'));
   if (userCache === null) {
     throw new Error('There is not user token');
   }
 
-  const { access_token } = JSON.parse(userCache);
+  const { access_token } = userCache;
   let newHeader = {};
 
   if (data && !(data instanceof FormData)) {

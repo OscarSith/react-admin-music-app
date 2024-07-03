@@ -32,3 +32,7 @@ export type TypeAlbumContext = {
   toDelete: MutableRefObject<boolean>;
   dispatch: Dispatch<AlbumReduceAction>;
 };
+
+export type fetchDataResource<ResultType> = {
+  read: () => ResultType;
+};

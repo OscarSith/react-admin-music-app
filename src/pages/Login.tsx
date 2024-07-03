@@ -1,21 +1,19 @@
 import React, { useState } from 'react';
 import { Alert, Button, Col, Form, Row, Spinner } from 'react-bootstrap';
-import { URL_SERVER_API } from '../constants';
 import { useAuth } from '../provider/AuthProvider';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { IAuth } from '../interfaces/Auth';
+import { Navigate } from 'react-router-dom';
+import authService from '../services/AuthService';
 
 const Login = () => {
   const { user, setLogin } = useAuth();
 
-  if (user !== null) {
+  if (user) {
     return <Navigate to="/" />;
   }
 
   const [validated, setValidated] = useState<boolean>(false);
   const [errorServer, setErrorServer] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const navigate = useNavigate();
 
   const handleSubmit = (event: React.ChangeEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -34,23 +32,9 @@ const Login = () => {
       setIsLoading(true);
       if (errorServer !== '') setErrorServer('');
 
-      fetch(URL_SERVER_API + 'auth/login', {
-        method: 'POST',
-        body: JSON.stringify(body),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-        .then(async (res: Response) => {
-          const data: IAuth = await res.json();
-          if (res.status >= 400) {
-            throw new Error(data.message);
-          }
-          return data;
-        })
+      authService(body)
         .then((data) => {
           setLogin(data);
-          navigate('/');
         })
         .catch((reason: Error) => {
           setErrorServer(reason.message);
@@ -75,6 +59,7 @@ const Login = () => {
               type="email"
               name="email"
               placeholder="Enter email"
+              autoComplete="username"
               required
             />
             <Form.Text className="text-muted">
@@ -93,6 +78,7 @@ const Login = () => {
               required
               minLength={4}
               name="password"
+              autoComplete="current-password"
             />
             <Form.Text className="text-muted">Minimun 4 letters</Form.Text>
             <Form.Control.Feedback type="invalid">

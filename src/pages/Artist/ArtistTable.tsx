@@ -3,14 +3,14 @@ import { ItemArtist } from './ItemArtist';
 import { IArtistCrudBasic } from '../../interfaces/globals';
 import { useArtistContext } from './store/StoreArtistContext';
 import { ArtistReducerActions } from '../../reducers/ArtistReducer';
-import { fetchData } from '../../utils/fetchData';
 import { IArtist } from '../../interfaces/Artist';
-
-const resource = fetchData('artists');
+import { useLoaderData } from 'react-router-dom';
+import { fetchDataResource } from '../../types';
 
 export const ArtistTable = memo(({ showModal }: IArtistCrudBasic) => {
   const { dispatch, artists } = useArtistContext();
-  const artistsData = resource.read() as IArtist[];
+  const resource = useLoaderData() as fetchDataResource<IArtist[]>;
+  const artistsData = resource.read();
 
   useEffect(() => {
     dispatch({

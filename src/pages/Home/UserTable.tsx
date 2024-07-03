@@ -1,7 +1,6 @@
-import React from 'react';
 import { Button } from 'react-bootstrap';
-import { fetchData } from '../utils/fetchData';
-import { IUser } from '../interfaces/User';
+import { fetchData } from '../../utils/fetchData';
+import { IUser } from '../../interfaces/User';
 
 const resource = fetchData('users');
 

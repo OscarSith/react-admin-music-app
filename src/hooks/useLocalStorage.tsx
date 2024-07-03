@@ -12,7 +12,7 @@ export const useLocalStorage = (
     try {
       const value = window.localStorage.getItem(keyname);
 
-      if (value) {
+      if (value !== 'null' || value !== null) {
         return JSON.parse(value);
       } else {
         window.localStorage.setItem(keyname, JSON.stringify(defaultValue));
@@ -25,7 +25,11 @@ export const useLocalStorage = (
 
   const setValue = (newValue: IAuth): void => {
     try {
-      window.localStorage.setItem(keyname, JSON.stringify(newValue));
+      if (newValue === null) {
+        window.localStorage.removeItem(keyname);
+      } else {
+        window.localStorage.setItem(keyname, JSON.stringify(newValue));
+      }
     } catch (err) {
       console.log(err);
     }

@@ -1,7 +1,7 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { Table } from 'react-bootstrap';
 import { UserTable } from './UserTable';
-import ErrorBoundary from '../utils/ErrorBoundary';
+import ErrorBoundary from '../../utils/ErrorBoundary';
 
 const Home = () => {
   const loading = (message: string) => {

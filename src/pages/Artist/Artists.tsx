@@ -1,10 +1,12 @@
-import React, { Suspense, useCallback, useState } from 'react';
+import { Suspense, useCallback, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { ArtistModal } from './ArtistModal';
 import { ArtistTable } from './ArtistTable';
 import { CustomToast } from '../../components/CustomToast';
+import { fetchData } from '../../utils/fetchData';
+import { StoreArtistProvider } from './store/StoreArtistContext';
 
-export const Artists: React.FC = () => {
+const Artists = () => {
   // States
   const [message, setMessage] = useState('');
   const [error, setError] = useState(false);
@@ -97,5 +99,17 @@ export const Artists: React.FC = () => {
         closeToast={handleHideToast}
       />
     </>
+  );
+};
+
+export const loader = () => {
+  return fetchData('artists');
+};
+
+export const Component = () => {
+  return (
+    <StoreArtistProvider>
+      <Artists />
+    </StoreArtistProvider>
   );
 };
