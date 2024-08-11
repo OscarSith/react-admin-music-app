@@ -41,4 +41,6 @@ const Home = () => {
   );
 };
 
-export default Home;
+export const Component = () => {
+  return <Home />;
+};

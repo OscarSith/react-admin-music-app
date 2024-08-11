@@ -102,14 +102,17 @@ const Artists = () => {
   );
 };
 
-export const loader = () => {
+export const loader = async () => {
+  console.log('loader artists');
   return fetchData('artists');
 };
 
 export const Component = () => {
   return (
-    <StoreArtistProvider>
-      <Artists />
-    </StoreArtistProvider>
+    <Suspense fallback={<p className="text-center">CARGANDO....</p>}>
+      <StoreArtistProvider>
+        <Artists />
+      </StoreArtistProvider>
+    </Suspense>
   );
 };
